@@ -1,0 +1,33 @@
+{
+  "name": "nft-broxus",
+  "version": "0.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "build": "npx locklift build --config locklift.config.js",
+    "deploy-account": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/0-deploy-account.js",
+    "deploy-collection": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/1-deploy-collection.js",
+    "mint-nft": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/2-mint-nft.js",
+    "deploy-auction-root": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/10-deploy-auction-root.js",
+    "build-start-auction-payload": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/20-build-start-auction-payload.js",
+    "get-collection-ownership": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/88-get-collection-ownership.js",
+    "send-evers-to": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/100-send-evers-to.js",
+    "mint-as-transfer": "npx locklift run --config locklift.config.js --disable-build --network local --script scripts/200-mint-as-transfer.js",
+    "mint-nft-from-json": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/mint-nft-from-json.js"
+
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@broxus/contracts": "^1.0.4",
+    "@types/mocha": "^9.1.0",
+    "bignumber.js": "^9.0.2",
+    "ipfs-core": "^0.14.2",
+    "locklift": "git+https://github.com/broxus/ton-locklift.git#028ed8b5f19a571b0e9dc3f703f3e3067ba74f43",
+    "mocha-logger": "^1.0.8",
+    "ora": "^3.4.0",
+    "prompts": "^2.4.1",
+    "ts-node": "^10.7.0",
+    "@broxus/credit-processor": "https://github.com/broxus/ton-eth-bridge-credit-processor"
+  }
+}

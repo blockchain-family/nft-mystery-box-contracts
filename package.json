@@ -28,6 +28,7 @@
     "ora": "^3.4.0",
     "prompts": "^2.4.1",
     "ts-node": "^10.7.0",
-    "@broxus/credit-processor": "https://github.com/broxus/ton-eth-bridge-credit-processor"
+    "@broxus/credit-processor": "https://github.com/broxus/ton-eth-bridge-credit-processor",
+    "tip3": "git://github.com/broxus/ton-eth-bridge-token-contracts#d3c1cd920c0320ffaab03b54c878dd0e06fed3c7"
   }
 }

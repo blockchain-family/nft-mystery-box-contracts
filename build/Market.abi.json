@@ -7,12 +7,13 @@
 			"name": "constructor",
 			"inputs": [
 				{"name":"_totalCount","type":"uint16"},
-				{"name":"_startTime","type":"uint32"},
+				{"name":"_startDate","type":"uint32"},
 				{"name":"_revealDate","type":"uint32"},
 				{"name":"_owner","type":"address"},
 				{"name":"_nftPerHand","type":"uint16"},
 				{"name":"_collection","type":"address"},
 				{"name":"_provenanceHash","type":"string"},
+				{"name":"_tokenRoot","type":"address"},
 				{"name":"_priceRule","type":"map(uint16,uint128)"}
 			],
 			"outputs": [
@@ -22,6 +23,14 @@
 			"name": "loadNftData",
 			"inputs": [
 				{"components":[{"name":"name","type":"string"},{"name":"description","type":"string"},{"name":"previewUrl","type":"string"},{"name":"ipfsUrl","type":"string"},{"name":"param1","type":"string"},{"name":"param2","type":"string"}],"name":"_nftData","type":"map(uint32,tuple)"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "onTokenWallet",
+			"inputs": [
+				{"name":"_tokenWallet","type":"address"}
 			],
 			"outputs": [
 			]
@@ -52,12 +61,24 @@
 			]
 		},
 		{
-			"name": "buy",
+			"name": "buildPayload",
 			"inputs": [
 				{"name":"id","type":"uint32"},
+				{"name":"toNftNumber","type":"uint16"}
+			],
+			"outputs": [
+				{"name":"value0","type":"cell"}
+			]
+		},
+		{
+			"name": "onAcceptTokensTransfer",
+			"inputs": [
+				{"name":"value0","type":"address"},
 				{"name":"amount","type":"uint128"},
-				{"name":"toNftNumber","type":"uint16"},
-				{"name":"user","type":"address"}
+				{"name":"sender","type":"address"},
+				{"name":"value3","type":"address"},
+				{"name":"remainingGasTo","type":"address"},
+				{"name":"payload","type":"cell"}
 			],
 			"outputs": [
 			]
@@ -150,11 +171,11 @@
 			]
 		},
 		{
-			"name": "startTime",
+			"name": "startDate",
 			"inputs": [
 			],
 			"outputs": [
-				{"name":"startTime","type":"uint32"}
+				{"name":"startDate","type":"uint32"}
 			]
 		},
 		{
@@ -187,6 +208,14 @@
 			],
 			"outputs": [
 				{"name":"provenanceHash","type":"string"}
+			]
+		},
+		{
+			"name": "tokenRoot",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"tokenRoot","type":"address"}
 			]
 		},
 		{
@@ -239,12 +268,14 @@
 		{"name":"soldCount","type":"uint16"},
 		{"name":"mintCount","type":"uint16"},
 		{"name":"collection","type":"address"},
-		{"name":"startTime","type":"uint32"},
+		{"name":"startDate","type":"uint32"},
 		{"name":"revealDate","type":"uint32"},
 		{"name":"totalRaised","type":"uint128"},
 		{"name":"totalWithdraw","type":"uint128"},
 		{"name":"provenanceHash","type":"string"},
 		{"name":"startIndex","type":"optional(uint32)"},
+		{"name":"tokenRoot","type":"address"},
+		{"name":"tokenWallet","type":"address"},
 		{"components":[{"name":"name","type":"string"},{"name":"description","type":"string"},{"name":"previewUrl","type":"string"},{"name":"ipfsUrl","type":"string"},{"name":"param1","type":"string"},{"name":"param2","type":"string"}],"name":"nftData_","type":"map(uint32,tuple)"},
 		{"name":"priceRule","type":"map(uint16,uint128)"},
 		{"name":"soldNfts","type":"map(address,uint16[])"},

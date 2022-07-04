@@ -1,0 +1,21 @@
+{
+    "collectionJson": {
+        "type": "Basic NFT",
+        "name": "Broxy",
+        "description": "Official Broxus collection",
+        "preview": {
+            "source": "https://",
+            "mimetype": "image/png"
+        },
+        "files": [
+            {
+                "source": "https://",
+                "mimetype": "image/png"
+            }
+        ],
+        "external_url": "https://"},
+    "totalCount": 5000,
+    "nftPerHand": 20,
+    "provenanceHash": "fvfdbghgnjyulio",
+    "priceRule": {"0": "100", "10": "200" }
+}

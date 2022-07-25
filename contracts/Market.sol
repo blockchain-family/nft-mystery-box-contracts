@@ -9,7 +9,7 @@ import "./interfaces/IMarketCallback.sol";
 import './libraries/Gas.sol';
 import './errors/Errors.sol';
 import "./structures/INftInfoStructure.sol";
-import "./modules/access/OwnableInternal.sol";
+import "./modules/access/MultiOwner.sol";
 
 import "@broxus/credit-processor/contracts/interfaces/structures/ICreditEventDataStructure.sol";
 import "@broxus/credit-processor/contracts/interfaces/IReceiveTONsFromBridgeCallback.sol";
@@ -21,7 +21,7 @@ import "tip3/contracts/interfaces/ITokenRoot.sol";
 import "tip3/contracts/interfaces/IAcceptTokensTransferCallback.sol";
 
 contract Market is 
-    OwnableInternal, 
+    MultiOwner, 
     INftInfoStructure, 
     ICreditEventDataStructure, 
     IReceiveTONsFromBridgeCallback, 
@@ -34,7 +34,7 @@ contract Market is
     uint16 public totalCount;
     uint16 public soldCount;
     uint16 public mintCount;
-    address collection;
+    address public collection;
 
     uint32 public startDate;
     uint32 public revealDate;
@@ -43,13 +43,14 @@ contract Market is
     uint128 public totalWithdraw;
 
     string public provenanceHash;
-    optional(uint32) startIndex;
+    optional(uint32) public startIndex;
     address public tokenRoot;
-    address tokenWallet;
+    address public tokenWallet;
 
     enum SaleStatus {
             Upcoming,
             Active,
+            SoldOut,
             Completed
     }
 
@@ -63,6 +64,7 @@ contract Market is
         uint32 _startDate,
         uint32 _revealDate,
         address _owner,
+		address[] _managers,
         uint16 _nftPerHand,
         address _collection,
         string _provenanceHash,
@@ -70,7 +72,7 @@ contract Market is
         mapping (uint16 => uint128) _priceRule
     ) 
         public
-        OwnableInternal(_owner)
+        MultiOwner(_owner, _managers)
     {
         tvm.accept();
         totalCount = _totalCount;
@@ -101,7 +103,7 @@ contract Market is
         _;
     }
 
-    function loadNftData(mapping (uint32 => NftInfo) _nftData) external onlyOwner onlyState(SaleStatus.Upcoming) {
+    function loadNftData(mapping (uint32 => NftInfo) _nftData) external anyOwner onlyState(SaleStatus.Upcoming) {
         for ((uint32 key, NftInfo value) : _nftData) {
             require(key <= totalCount, Errors.WRONG_LOAD_DATA);
             nftData_[key] = value;         
@@ -117,14 +119,16 @@ contract Market is
     function state() public view returns(SaleStatus) {
         if (now < startDate) {
             return SaleStatus.Upcoming;
-        } else if (!startIndex.hasValue() || (now < revealDate && soldCount < totalCount)) {
-            return  SaleStatus.Active;
+        } else if (startIndex.hasValue()) {
+            return  SaleStatus.Completed;
+        } else if (now >= revealDate || soldCount == totalCount) {
+            return SaleStatus.SoldOut;
         } else {
-            return SaleStatus.Completed;
+            return SaleStatus.Active;
         }
     }
 
-    function nftData() external view onlyState(SaleStatus.Completed) returns (mapping (uint32 => NftInfo)) {
+    function nftData() external view returns (mapping (uint32 => NftInfo)) {
         return nftData_;
     }
 
@@ -245,8 +249,9 @@ contract Market is
         _data.user.transfer({ value: 0, flag: MsgFlag.ALL_NOT_RESERVED + MsgFlag.IGNORE_ERRORS, bounce: false });
     }
 
-    function reveal() public onlyState(SaleStatus.Active) {
+    function reveal() public onlyState(SaleStatus.SoldOut) {
         require(now >= revealDate || soldCount == totalCount, Errors.OPENING_TIME_NOT_YET);
+        rnd.shuffle();
         startIndex.set(uint32(rnd.next(totalCount)));
         _reserve();
         msg.sender.transfer({ value: 0, flag: MsgFlag.ALL_NOT_RESERVED + MsgFlag.IGNORE_ERRORS, bounce: false });
@@ -255,12 +260,12 @@ contract Market is
     function withdraw(uint128 amount, address recipient) external onlyOwner onlyState(SaleStatus.Completed){
         require(recipient.value != 0, Errors.WRONG_RECIPIENT);
         require(totalWithdraw + amount <= totalRaised, Errors.WRONG_AMOUNT);
-        require(msg.value > Gas.WITHDRAW_VALUE, Errors.LOW_GAS);
+        require(msg.value >= Gas.WITHDRAW_VALUE, Errors.LOW_GAS);
         totalWithdraw += amount;
         _reserve();
 
         TvmCell emptyPayload;
-        ITokenWallet(msg.sender).transfer{ value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false }
+        ITokenWallet(tokenWallet).transfer{ value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false }
             (amount, recipient, Gas.DEPLOY_EMPTY_WALLET_GRAMS, recipient, true, emptyPayload);
     }
 
@@ -286,9 +291,46 @@ contract Market is
         _claimNfts(msg.sender);          
     }
 
-    function claimNftsFor(address user) external onlyOwner onlyState(SaleStatus.Completed) {
+    function claimNftsFor(address user) external anyOwner onlyState(SaleStatus.Completed) {
         _claimNfts(user);
     }
 
-}
+    function upgrade(TvmCell code) external onlyOwner {
+        require(msg.value > Gas.UPGRADE_ACCOUNT_MIN_VALUE, Errors.LOW_GAS);
+        _reserve();
 
+
+        TvmCell data = abi.encode(
+            owner(),
+            managers(),
+            nftPerHand,
+            totalCount,
+            soldCount,
+            mintCount,
+            collection,
+            startDate,
+            revealDate,
+            totalRaised,
+            totalWithdraw,
+            provenanceHash,
+            startIndex,
+            tokenRoot,
+            tokenWallet,
+            nftData_,
+            priceRule,
+            soldNfts,
+            claimNft
+        );
+
+        tvm.setcode(code);
+        tvm.setCurrentCode(code);
+
+        onCodeUpgrade(data);
+    }
+
+    function onCodeUpgrade(TvmCell data) private {
+        
+    }
+
+
+}

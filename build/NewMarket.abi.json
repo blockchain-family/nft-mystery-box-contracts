@@ -6,42 +6,8 @@
 		{
 			"name": "constructor",
 			"inputs": [
-				{"name":"_totalCount","type":"uint16"},
-				{"name":"_startDate","type":"uint32"},
-				{"name":"_revealDate","type":"uint32"},
-				{"name":"_owner","type":"address"},
-				{"name":"_managers","type":"address[]"},
-				{"name":"_nftPerHand","type":"uint16"},
-				{"name":"_collection","type":"address"},
-				{"name":"_provenanceHash","type":"string"},
-				{"name":"_tokenRoot","type":"address"},
-				{"name":"_priceRule","type":"map(uint16,uint128)"}
 			],
 			"outputs": [
-			]
-		},
-		{
-			"name": "loadNftData",
-			"inputs": [
-				{"components":[{"name":"name","type":"string"},{"name":"description","type":"string"},{"name":"previewUrl","type":"string"},{"name":"ipfsUrl","type":"string"},{"name":"param1","type":"string"},{"name":"param2","type":"string"}],"name":"_nftData","type":"map(uint32,tuple)"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "onTokenWallet",
-			"inputs": [
-				{"name":"_tokenWallet","type":"address"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "state",
-			"inputs": [
-			],
-			"outputs": [
-				{"name":"value0","type":"uint8"}
 			]
 		},
 		{
@@ -53,121 +19,19 @@
 			]
 		},
 		{
-			"name": "nftsOf",
+			"name": "state",
 			"inputs": [
-				{"name":"_user","type":"address"}
 			],
 			"outputs": [
-				{"name":"value0","type":"uint16[]"}
+				{"name":"value0","type":"uint8"}
 			]
 		},
 		{
-			"name": "buildPayload",
-			"inputs": [
-				{"name":"id","type":"uint32"},
-				{"name":"toNftNumber","type":"uint16"}
-			],
-			"outputs": [
-				{"name":"value0","type":"cell"}
-			]
-		},
-		{
-			"name": "onAcceptTokensTransfer",
-			"inputs": [
-				{"name":"value0","type":"address"},
-				{"name":"amount","type":"uint128"},
-				{"name":"sender","type":"address"},
-				{"name":"value3","type":"address"},
-				{"name":"remainingGasTo","type":"address"},
-				{"name":"payload","type":"cell"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "onReceiveTONsFromBridgeCallback",
-			"inputs": [
-				{"components":[{"name":"amount","type":"uint128"},{"name":"user","type":"address"},{"name":"creditor","type":"address"},{"name":"recipient","type":"address"},{"name":"tokenAmount","type":"uint128"},{"name":"tonAmount","type":"uint128"},{"name":"swapType","type":"uint8"},{"components":[{"name":"numerator","type":"uint128"},{"name":"denominator","type":"uint128"}],"name":"slippage","type":"tuple"},{"name":"layer3","type":"cell"}],"name":"_data","type":"tuple"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "reveal",
+			"name": "bla",
 			"inputs": [
 			],
 			"outputs": [
-			]
-		},
-		{
-			"name": "withdraw",
-			"inputs": [
-				{"name":"amount","type":"uint128"},
-				{"name":"recipient","type":"address"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "claimNfts",
-			"inputs": [
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "claimNftsFor",
-			"inputs": [
-				{"name":"user","type":"address"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "upgrade",
-			"inputs": [
-				{"name":"code","type":"cell"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "addManager",
-			"inputs": [
-				{"name":"newManager","type":"address"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "resetManagers",
-			"inputs": [
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "managers",
-			"inputs": [
-			],
-			"outputs": [
-				{"name":"value0","type":"address[]"}
-			]
-		},
-		{
-			"name": "owner",
-			"inputs": [
-			],
-			"outputs": [
-				{"name":"value0","type":"address"}
-			]
-		},
-		{
-			"name": "transferOwnership",
-			"inputs": [
-				{"name":"newOwner","type":"address"}
-			],
-			"outputs": [
+				{"name":"value0","type":"string"}
 			]
 		},
 		{
@@ -303,37 +167,13 @@
 		{"key":1,"name":"nonce_","type":"uint64"}
 	],
 	"events": [
-		{
-			"name": "ManagerAdded",
-			"inputs": [
-				{"name":"newManager","type":"address"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "ManagersReset",
-			"inputs": [
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "OwnershipTransferred",
-			"inputs": [
-				{"name":"oldOwner","type":"address"},
-				{"name":"newOwner","type":"address"}
-			],
-			"outputs": [
-			]
-		}
 	],
 	"fields": [
 		{"name":"_pubkey","type":"uint256"},
 		{"name":"_timestamp","type":"uint64"},
 		{"name":"_constructorFlag","type":"bool"},
-		{"name":"owner_","type":"address"},
 		{"name":"managers_","type":"address[]"},
+		{"name":"owner_","type":"address"},
 		{"name":"nonce_","type":"uint64"},
 		{"name":"nftPerHand","type":"uint16"},
 		{"name":"totalCount","type":"uint16"},

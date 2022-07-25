@@ -5,16 +5,12 @@
   "main": "",
   "scripts": {
     "build": "npx locklift build --config locklift.config.js",
-    "deploy-account": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/0-deploy-account.js",
-    "deploy-collection": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/1-deploy-collection.js",
-    "mint-nft": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/2-mint-nft.js",
-    "deploy-auction-root": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/10-deploy-auction-root.js",
-    "build-start-auction-payload": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/20-build-start-auction-payload.js",
-    "get-collection-ownership": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/88-get-collection-ownership.js",
-    "send-evers-to": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/100-send-evers-to.js",
-    "mint-as-transfer": "npx locklift run --config locklift.config.js --disable-build --network local --script scripts/200-mint-as-transfer.js",
-    "mint-nft-from-json": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/mint-nft-from-json.js"
-
+    "deploy-token-root": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/10-deploy-token-root.js",
+    "deploy-all-contract": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/0-deploy-all-contracts.js",
+    "reveal": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/50-reveal.js",
+    "claim-nft": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/60-claim.nft.js",
+    "get-ever-back": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/99-get-ever-back.js",
+    "send-evers-to": "NODE_OPTIONS='-r ts-node/register --no-warnings' npx locklift run --config locklift.config.js --disable-build --network local --script scripts/100-send-evers-to.js"
   },
   "author": "",
   "license": "ISC",

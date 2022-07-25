@@ -14,8 +14,8 @@
             }
         ],
         "external_url": "https://"},
-    "totalCount": 5000,
-    "nftPerHand": 20,
+    "totalCount": 14,
+    "nftPerHand": 7,
     "provenanceHash": "fvfdbghgnjyulio",
-    "priceRule": {"0": "100", "10": "200" }
+    "priceRule": {"0": "10000000000", "10": "20000000000", "20": "30000000000", "30": "40000000000" } 
 }

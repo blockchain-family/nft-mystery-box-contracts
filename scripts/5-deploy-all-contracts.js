@@ -59,65 +59,54 @@ async function main() {
       keyPair: Account.keyPair,
     }, locklift.utils.convertCrystal(4, 'nano'));
 
+    migration.store(Collection, 'Collection');
+    console.log('Collection deployed', Collection.address);
+
     // deploy market
     const Market = await locklift.factory.getContract("Market");
-
     const response = await prompts([
         {
             type: 'text',
             name: 'tokenRoot',
             message: 'Enter tokenRoot address',
-            validate: value => isValidTonAddress(value) || value === '' ? true : 'Invalid Everscale address',
-            initial:  "0:a519f99bb5d6d51ef958ed24d337ad75a1c770885dcd42d51d6663f9fcdacfb2"
+            validate: value => isValidTonAddress(value) || value === '' ? true : 'Invalid Everscale address'
         },
         {
             type: 'number',
             name: 'startDate',
             message: 'Enter start date',
-            initial: new BigNumber(new Date().getTime()).div(1000).dp(0)
+            initial: new BigNumber(new Date().getTime()).div(1000).plus(30).dp(0) // start 30 second after deploy
         },
         {
             type: 'number',
             name: 'revealDate',
             message: 'Enter reveal date',
-            initial: new BigNumber(new Date().getTime()).div(1000).plus(60).dp(0)
+            initial: new BigNumber(new Date().getTime()).div(1000).plus(40).dp(0) // reveal 40 second after now
         }
     ]);
 
-
-    // uint16 _totalCount,
-    // uint32 _startDate,
-    // uint32 _revealDate,
-    // address _owner,
-    // uint16 _nftPerHand,
-    // address _collection,
-    // string _provenanceHash,
-    // address _tokenRoot,
-    // mapping (uint16 => uint128) _priceRule
-
-    let paramsTmp = {
-        _totalCount: jsonData.totalCount,
-        _startDate: response.startDate,
-        _revealDate: response.revealDate,
-        _owner: Account.address,
-        _nftPerHand: jsonData.nftPerHand,
-        _collection: Collection.address,
-        _provenanceHash: jsonData.provenanceHash,
-        _tokenRoot: response.tokenRoot,
-        _priceRule: jsonData.priceRule,
-    };
-
-    console.log(paramsTmp);
-
     await locklift.giver.deployContract({
         contract: Market,
-        constructorParams: paramsTmp,
+        constructorParams: {
+            _totalCount: jsonData.totalCount,
+            _startDate: response.startDate,
+            _revealDate: response.revealDate,
+            _owner: Account.address,
+            _managers: [],
+            _nftPerHand: jsonData.nftPerHand,
+            _collection: Collection.address,
+            _provenanceHash: jsonData.provenanceHash,
+            _tokenRoot: response.tokenRoot,
+            _priceRule: jsonData.priceRule,
+        },
         initParams: {
             nonce_: getRandomNonce(),
         },
         keyPair,
     }, locklift.utils.convertCrystal(5, 'nano'));
-    console.log("Market deployed");
+
+    migration.store(Market, 'Market');
+    console.log('Market deployed', Collection.address);
 
     // make the Market contract the manager of the Collection contract
     await Account.runTarget({
@@ -131,6 +120,16 @@ async function main() {
     });
     console.log('Add manager to Collection: ' + Market.address);
 
+    await Account.runTarget({
+        contract: Market,
+        method: 'addManager',
+        params: {
+            newManager: Account.address
+        },
+        keyPair,
+        value: locklift.utils.convertCrystal(1, 'nano')
+    });
+    console.log('Add manager to Market: ' + Account.address);
 
     // load nft info data
     const nftInfoJson = JSON.parse(fs.readFileSync("nftInfoData.json", 'utf8'));

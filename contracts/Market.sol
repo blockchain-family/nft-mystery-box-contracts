@@ -27,7 +27,6 @@ contract Market is
     IReceiveTONsFromBridgeCallback, 
     IAcceptTokensTransferCallback 
 {
-
     uint64 static nonce_;
 
     uint16 public nftPerHand;
@@ -54,10 +53,15 @@ contract Market is
             Completed
     }
 
+    uint16 public soldCountDiscount;
+    uint16 public soldCountAirdrop;
+
     mapping (uint32 => NftInfo) nftData_;
     mapping (uint16 => uint128) public priceRule;
     mapping (address => uint16[]) public soldNfts;
     mapping (address => bool) public claimNft;
+    mapping (address => uint16) public airDrop;
+    mapping (address => uint16) public whiteList;
 
     constructor(
         uint16 _totalCount,
@@ -69,7 +73,9 @@ contract Market is
         address _collection,
         string _provenanceHash,
         address _tokenRoot,
-        mapping (uint16 => uint128) _priceRule
+        mapping (uint16 => uint128) _priceRule,
+        mapping (address => uint16) _airDrop,
+        mapping (address => uint16) _whiteList
     ) 
         public
         MultiOwner(_owner, _managers)
@@ -84,6 +90,25 @@ contract Market is
         require(priceRule.exists(0), Errors.WRONG_PRICE_RULES);
         collection = _collection;
         provenanceHash = _provenanceHash;
+        airDrop = _airDrop;
+        whiteList = _whiteList;
+
+        for ((address key, uint16 value) : airDrop) {
+            uint16 curSoldCountAirdrop = soldCountAirdrop;
+            uint16[] currUserNfts = nftsOf(key);
+            uint256 currUserNftsCount = currUserNfts.length;
+            for (uint16 i = 0; i < value; i++) {
+                if (currUserNftsCount < nftPerHand && curSoldCountAirdrop < totalCount) {
+                    currUserNfts.push(curSoldCountAirdrop);
+                    curSoldCountAirdrop++;
+                    currUserNftsCount++;
+                } else {
+                    break;
+                }
+            }
+            soldNfts[key] = currUserNfts;
+            soldCountAirdrop = curSoldCountAirdrop;
+        }
 
         ITokenRoot(tokenRoot).deployWallet {
             value: Gas.DEPLOY_EMPTY_WALLET_VALUE,
@@ -117,11 +142,12 @@ contract Market is
     }
 
     function state() public view returns(SaleStatus) {
+        uint16 commonSoldCount =  commonSoldCount();
         if (now < startDate) {
             return SaleStatus.Upcoming;
         } else if (startIndex.hasValue()) {
             return  SaleStatus.Completed;
-        } else if (now >= revealDate || soldCount == totalCount) {
+        } else if (now >= revealDate || commonSoldCount == totalCount) {
             return SaleStatus.SoldOut;
         } else {
             return SaleStatus.Active;
@@ -190,34 +216,74 @@ contract Market is
             return (id, toNftNumber);
     }
 
+    function commonSoldCount() public view returns (uint16) {
+        return (soldCount + soldCountDiscount + soldCountAirdrop);
+    }
+
+    function currPriceOf(address user) public returns (uint128) {
+        (,uint128 price) = priceRule.prevOrEq(soldCount).get();
+        if (discountOf(user) > 0) {
+            price = math.muldivc(priceRule.at(0),70,100);
+        }
+        return price;
+    }
+
+    function discountOf(address user) public returns (uint16) {
+        optional(uint16) countDiscount = whiteList.fetch(user);
+        return (countDiscount.hasValue())  ?  countDiscount.get() : 0;
+    }
+
     function _buy(uint32 id, uint128 amount, uint16 toNftNumber, address user, address remainingGasTo) private {
         if (state() == SaleStatus.Active && msg.value >= Gas.BUY_VALUE) {
             uint16[] currUserNfts = nftsOf(user);
             uint256 currUserNftsCount = currUserNfts.length;
             uint16 currSoldCount = soldCount;
+            uint16 currSoldCountDiscount = soldCountDiscount;
             uint128 currAmount = amount;
-            
+            uint16 currCommonSoldCount = commonSoldCount();
+            uint16 countDiscount = discountOf(user);
+            uint16 currCountDiscount = discountOf(user);
+
+            if (currCountDiscount > 0) {
+                for (uint16 i = 0; i < countDiscount; i++) {
+                    uint128 price = currPriceOf(user);
+                    if (currAmount >= price && currUserNftsCount < nftPerHand && currCommonSoldCount < totalCount) {
+                        currAmount -= price;
+                        currUserNftsCount++;
+                        currUserNfts.push(currCommonSoldCount);
+                        currSoldCountDiscount++;
+                        currCommonSoldCount++;
+                        currCountDiscount--;
+                    } else {
+                        break;
+                    }
+                }
+                whiteList[user] = currCountDiscount;
+            }
             for (uint16 i = soldCount; i <= toNftNumber; i++) {
-                (,uint128 price) = priceRule.prevOrEq(currSoldCount).get();
-                if (currAmount >= price && currUserNftsCount < nftPerHand && currSoldCount < totalCount) {
+//                (,uint128 price) = priceRule.prevOrEq(currSoldCount).get();
+                uint128 price = currPriceOf(user);
+                if (currAmount >= price && currUserNftsCount < nftPerHand && currCommonSoldCount < totalCount) {
                     currAmount -= price;
                     currUserNftsCount++;
-                    currUserNfts.push(i);
+                    currUserNfts.push(currCommonSoldCount);
                     currSoldCount++;
+                    currCommonSoldCount++;
                 } else {
                     break;
                 }
             }
-            if (soldCount != currSoldCount) {
+            if (commonSoldCount() != currCommonSoldCount) {
                 IMarketCallback(user).onSuccess{ 
                     value: Gas.CALLBACK_VALUE, flag: MsgFlag.SENDER_PAYS_FEES, bounce: false 
-                }(id, soldCount, currSoldCount - 1);
+                }(id, commonSoldCount(), currCommonSoldCount - 1);
 
                 soldNfts[user] = currUserNfts;
                 soldCount = currSoldCount;
                 totalRaised += (amount - currAmount);
+                soldCountDiscount = currSoldCountDiscount;
 
-                if (currAmount> 0) {
+                if (currAmount > 0) {
                 TvmCell emptyPayload;
                 ITokenWallet(msg.sender).transfer{ value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false }
                     (currAmount, user, Gas.DEPLOY_EMPTY_WALLET_GRAMS, remainingGasTo, true, emptyPayload);
@@ -250,7 +316,7 @@ contract Market is
     }
 
     function reveal() public onlyState(SaleStatus.SoldOut) {
-        require(now >= revealDate || soldCount == totalCount, Errors.OPENING_TIME_NOT_YET);
+        require(now >= revealDate || commonSoldCount() == totalCount, Errors.OPENING_TIME_NOT_YET);
         rnd.shuffle();
         startIndex.set(uint32(rnd.next(totalCount)));
         _reserve();
@@ -319,7 +385,11 @@ contract Market is
             nftData_,
             priceRule,
             soldNfts,
-            claimNft
+            claimNft,
+            soldCountDiscount,
+            airDrop,
+            whiteList,
+            soldCountAirdrop
         );
 
         tvm.setcode(code);

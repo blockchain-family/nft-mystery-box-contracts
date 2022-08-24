@@ -15,7 +15,9 @@
 				{"name":"_collection","type":"address"},
 				{"name":"_provenanceHash","type":"string"},
 				{"name":"_tokenRoot","type":"address"},
-				{"name":"_priceRule","type":"map(uint16,uint128)"}
+				{"name":"_priceRule","type":"map(uint16,uint128)"},
+				{"name":"_airDrop","type":"map(address,uint16)"},
+				{"name":"_whiteList","type":"map(address,uint16)"}
 			],
 			"outputs": [
 			]
@@ -82,6 +84,32 @@
 				{"name":"payload","type":"cell"}
 			],
 			"outputs": [
+			]
+		},
+		{
+			"name": "commonSoldCount",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"uint16"}
+			]
+		},
+		{
+			"name": "currPriceOf",
+			"inputs": [
+				{"name":"user","type":"address"}
+			],
+			"outputs": [
+				{"name":"value0","type":"uint128"}
+			]
+		},
+		{
+			"name": "discountOf",
+			"inputs": [
+				{"name":"user","type":"address"}
+			],
+			"outputs": [
+				{"name":"value0","type":"uint16"}
 			]
 		},
 		{
@@ -275,6 +303,22 @@
 			]
 		},
 		{
+			"name": "soldCountDiscount",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"soldCountDiscount","type":"uint16"}
+			]
+		},
+		{
+			"name": "soldCountAirdrop",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"soldCountAirdrop","type":"uint16"}
+			]
+		},
+		{
 			"name": "priceRule",
 			"inputs": [
 			],
@@ -296,6 +340,22 @@
 			],
 			"outputs": [
 				{"name":"claimNft","type":"map(address,bool)"}
+			]
+		},
+		{
+			"name": "airDrop",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"airDrop","type":"map(address,uint16)"}
+			]
+		},
+		{
+			"name": "whiteList",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"whiteList","type":"map(address,uint16)"}
 			]
 		}
 	],
@@ -348,9 +408,13 @@
 		{"name":"startIndex","type":"optional(uint32)"},
 		{"name":"tokenRoot","type":"address"},
 		{"name":"tokenWallet","type":"address"},
+		{"name":"soldCountDiscount","type":"uint16"},
+		{"name":"soldCountAirdrop","type":"uint16"},
 		{"components":[{"name":"name","type":"string"},{"name":"description","type":"string"},{"name":"previewUrl","type":"string"},{"name":"ipfsUrl","type":"string"},{"name":"param1","type":"string"},{"name":"param2","type":"string"}],"name":"nftData_","type":"map(uint32,tuple)"},
 		{"name":"priceRule","type":"map(uint16,uint128)"},
 		{"name":"soldNfts","type":"map(address,uint16[])"},
-		{"name":"claimNft","type":"map(address,bool)"}
+		{"name":"claimNft","type":"map(address,bool)"},
+		{"name":"airDrop","type":"map(address,uint16)"},
+		{"name":"whiteList","type":"map(address,uint16)"}
 	]
 }

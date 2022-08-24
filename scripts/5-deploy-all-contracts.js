@@ -75,13 +75,13 @@ async function main() {
             type: 'number',
             name: 'startDate',
             message: 'Enter start date',
-            initial: new BigNumber(new Date().getTime()).div(1000).plus(30).dp(0) // start 30 second after deploy
+            initial: new BigNumber(new Date().getTime()).div(1000).plus(60).dp(0) // start 30 second after deploy
         },
         {
             type: 'number',
             name: 'revealDate',
             message: 'Enter reveal date',
-            initial: new BigNumber(new Date().getTime()).div(1000).plus(40).dp(0) // reveal 40 second after now
+            initial: new BigNumber(new Date().getTime()).div(1000).plus(600).dp(0) // reveal 40 second after now
         }
     ]);
 

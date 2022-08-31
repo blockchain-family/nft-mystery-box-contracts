@@ -205,6 +205,26 @@ async function main() {
     migration.store(tokenRoot, name);
     logger.log(`${name}: ${tokenRoot.address}`);
 
+    const response2 = await prompts([
+        {
+            type: 'text',
+            name: 'newOwner',
+            message: 'Transfer ownership to',
+            validate: value => isValidTonAddress(value) || value === '' ? true : 'Invalid Everscale address'
+        }
+    ]);
+
+    await Account.runTarget({
+        contract: tokenRoot,
+        method: 'transferOwnership',
+        params: {
+            newOwner: response2.newOwner
+        },
+        keyPair,
+        value: locklift.utils.convertCrystal(1, 'nano')
+    })
+    console.log('Transfer ownership tokenRoot to: ' + response2.newOwner);
+
 }
 
 main()

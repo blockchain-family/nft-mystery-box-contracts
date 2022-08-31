@@ -55,6 +55,7 @@ contract Market is
 
     uint16 public soldCountDiscount;
     uint16 public soldCountAirdrop;
+    uint128 public discountPrice;
 
     mapping (uint32 => NftInfo) nftData_;
     mapping (uint16 => uint128) public priceRule;
@@ -73,6 +74,7 @@ contract Market is
         address _collection,
         string _provenanceHash,
         address _tokenRoot,
+        uint128 _discountPrice,
         mapping (uint16 => uint128) _priceRule,
         mapping (address => uint16) _airDrop,
         mapping (address => uint16) _whiteList
@@ -92,6 +94,7 @@ contract Market is
         provenanceHash = _provenanceHash;
         airDrop = _airDrop;
         whiteList = _whiteList;
+        discountPrice = _discountPrice;
 
         for ((address key, uint16 value) : airDrop) {
             uint16 curSoldCountAirdrop = soldCountAirdrop;
@@ -166,10 +169,11 @@ contract Market is
         tvm.rawReserve(Gas.INITIAL_BALANCE, 0);
     }
 
-    function buildPayload(uint32 id, uint16 toNftNumber) external pure returns(TvmCell) {
+    function buildPayload(uint32 id, uint16 toNftNumber, address user) external pure returns(TvmCell) {
         TvmBuilder builder;
         builder.store(id);
         builder.store(toNftNumber);
+        builder.store(user);
         return builder.toCell();
     }
 
@@ -185,24 +189,23 @@ contract Market is
         _reserve();
 
         uint32 id;
-        address user = sender;
+        address user;
         uint16 toNftNumber = totalCount;
 
         if (EventDataDecoder.isValid(payload)) {
             CreditEventData data = EventDataDecoder.decode(payload);
-
             user = data.user;
-
-            (id, toNftNumber) = _decodePayload(data.layer3);
+            (id, toNftNumber, user) = _decodePayload(data.layer3, sender);
         } else {
-            (id, toNftNumber) = _decodePayload(payload);
+            (id, toNftNumber, user) = _decodePayload(payload, sender);
         }
         _buy(id, amount, toNftNumber, user, remainingGasTo);
     }
 
-    function _decodePayload(TvmCell _payload) private returns (uint32, uint16) {
+    function _decodePayload(TvmCell _payload, address sender) private returns (uint32, uint16, address) {
 
             uint32 id;
+            address user = sender;
             uint16 toNftNumber = totalCount;
 
             TvmSlice payloadSlice = _payload.toSlice();
@@ -211,21 +214,16 @@ contract Market is
                 id = payloadSlice.decode(uint32);
                 if (payloadSlice.bits() >= 16) {
                     toNftNumber = payloadSlice.decode(uint16);
+                    if (payloadSlice.bits() >= 267) {
+                        user = payloadSlice.decode(address);
+                    }
                 }
             }
-            return (id, toNftNumber);
+            return (id, toNftNumber, user);
     }
 
     function commonSoldCount() public view returns (uint16) {
         return (soldCount + soldCountDiscount + soldCountAirdrop);
-    }
-
-    function currPriceOf(address user) public returns (uint128) {
-        (,uint128 price) = priceRule.prevOrEq(soldCount).get();
-        if (discountOf(user) > 0) {
-            price = math.muldivc(priceRule.at(0),70,100);
-        }
-        return price;
     }
 
     function discountOf(address user) public returns (uint16) {
@@ -240,29 +238,29 @@ contract Market is
             uint16 currSoldCount = soldCount;
             uint16 currSoldCountDiscount = soldCountDiscount;
             uint128 currAmount = amount;
-            uint16 currCommonSoldCount = commonSoldCount();
+            uint16 commonSoldCount = commonSoldCount();
+            uint16 currCommonSoldCount = commonSoldCount;
             uint16 countDiscount = discountOf(user);
-            uint16 currCountDiscount = discountOf(user);
+            uint16 currCountDiscount = countDiscount;
 
-            if (currCountDiscount > 0) {
-                for (uint16 i = 0; i < countDiscount; i++) {
-                    uint128 price = currPriceOf(user);
-                    if (currAmount >= price && currUserNftsCount < nftPerHand && currCommonSoldCount < totalCount) {
-                        currAmount -= price;
+            while (currCountDiscount > 0 && currAmount >= discountPrice &&
+                    currUserNftsCount < nftPerHand && currCommonSoldCount < totalCount) {
+                        currAmount -= discountPrice;
                         currUserNftsCount++;
                         currUserNfts.push(currCommonSoldCount);
                         currSoldCountDiscount++;
                         currCommonSoldCount++;
                         currCountDiscount--;
-                    } else {
-                        break;
-                    }
-                }
+            }
+
+            if (currCountDiscount == 0) {
+                delete whiteList[user];
+            } else {
                 whiteList[user] = currCountDiscount;
             }
+
             for (uint16 i = soldCount; i <= toNftNumber; i++) {
-//                (,uint128 price) = priceRule.prevOrEq(currSoldCount).get();
-                uint128 price = currPriceOf(user);
+                (,uint128 price) = priceRule.prevOrEq(currSoldCount).get();
                 if (currAmount >= price && currUserNftsCount < nftPerHand && currCommonSoldCount < totalCount) {
                     currAmount -= price;
                     currUserNftsCount++;
@@ -273,10 +271,10 @@ contract Market is
                     break;
                 }
             }
-            if (commonSoldCount() != currCommonSoldCount) {
+            if (commonSoldCount != currCommonSoldCount) {
                 IMarketCallback(user).onSuccess{ 
                     value: Gas.CALLBACK_VALUE, flag: MsgFlag.SENDER_PAYS_FEES, bounce: false 
-                }(id, commonSoldCount(), currCommonSoldCount - 1);
+                }(id, commonSoldCount, currCommonSoldCount - 1);
 
                 soldNfts[user] = currUserNfts;
                 soldCount = currSoldCount;
@@ -293,7 +291,7 @@ contract Market is
 
             } else {
 
-                IMarketCallback(user).onCancel{ value: Gas.CALLBACK_VALUE, flag: MsgFlag.SENDER_PAYS_FEES, bounce: false }(id);
+                IMarketCallback(user).onCancel{ value: Gas.CALLBACK_VALUE + 1, flag: MsgFlag.SENDER_PAYS_FEES, bounce: false }(id);
                 
                 TvmCell emptyPayload;
                 ITokenWallet(msg.sender).transfer{ value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false }
@@ -302,7 +300,7 @@ contract Market is
             }
         } else {
             
-            IMarketCallback(user).onCancel{ value: Gas.CALLBACK_VALUE, flag: MsgFlag.SENDER_PAYS_FEES, bounce: false }(id);
+            IMarketCallback(user).onCancel{ value: Gas.CALLBACK_VALUE + 2, flag: MsgFlag.SENDER_PAYS_FEES, bounce: false }(id);
             
             TvmCell emptyPayload;
             ITokenWallet(msg.sender).transfer{ value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false }

@@ -65,7 +65,7 @@ async function getMarketParams() {
         soldCountDiscount:(await Market.call({ method: 'soldCountDiscount', params: {}})).toNumber(),
         soldCountAirdrop: (await Market.call({ method: 'soldCountAirdrop', params: {}})).toNumber(),
         commonSoldCount: (await Market.call({ method: 'commonSoldCount', params: {}})).toNumber(),
-        countDiscount: (await Market.call({ method: 'discountOf', params: {user: AccountUser2.address}})).toNumber(),
+        discountPrice:  new BigNumber((await Market.call({ method: 'discountPrice', params: {}})).toString()).shiftedBy(-9).toNumber(),
     };
     return params;
 };
@@ -221,7 +221,8 @@ describe("Market contract reveal by soldCount", async function() {
                 _tokenRoot: TokenRoot.address,
                 _priceRule: jsonData.priceRule,
                 _airDrop: airDrop,
-                _whiteList: whiteList
+                _whiteList: whiteList,
+                _discountPrice: jsonData.discountPrice
             },
             initParams: {
                 nonce_: getRandomNonce(),
@@ -324,6 +325,7 @@ describe("Market contract reveal by soldCount", async function() {
         });
         console.log(`Minted 1000 Tokens to user2 account : ${AccountUser2.address}`)
 
+
     });
 
     it("Check deployed Market parameters", async function() {
@@ -358,6 +360,7 @@ describe("Market contract reveal by soldCount", async function() {
         expect(marketParams.soldCountAirdrop).to.be.equal(
             Object.values(airDrop).reduce((a, c) => Number(a) + Number(c), 0), 'Wrong soldCountAirdrop');
         expect(marketParams.commonSoldCount).to.be.equal(4, 'Wrong soldCount');
+        expect(marketParams.discountPrice).to.be.equal(7, 'Wrong soldCount');
 
         console.log('userTokenWallet', await getBalanceFor(userTokenWallet));
         console.log('user2TokenWallet', await getBalanceFor(user2TokenWallet));
@@ -391,7 +394,7 @@ describe("Market contract reveal by soldCount", async function() {
         expect(Object.getOwnPropertyNames(marketParams.nftData).length).to.be.equal(marketParams.totalCount, 'Wrong length nftData');
     });
 
-    it("Check buy before start date", async function() {
+    it("Check buy before start date with discount", async function() {
         let marketParams  = await getMarketParams();
 
         expect(marketParams.state).to.be.equal(0, 'Wrong status');
@@ -409,20 +412,20 @@ describe("Market contract reveal by soldCount", async function() {
         expect(await getBalanceFor(user2TokenWallet)).to.be.equal(1000, 'Wrong user2 balance');
         expect(await getBalanceFor(marketTokenWallet)).to.be.equal(0, 'Wrong market balance');
 
-        payload = await Market.call({ method: 'buildPayload', params: { id: 100, toNftNumber:  9}});
+        const payload = await Market.call({ method: 'buildPayload', params: { id: 100, toNftNumber:  9, user: AccountUser2.address}});
     
-        await AccountUser.runTarget({
-            contract: userTokenWallet,
+        await AccountUser2.runTarget({
+            contract: user2TokenWallet,
             method: 'transfer',
             params: {
                 amount: new BigNumber(40).shiftedBy(9).toString(),
                 recipient: Market.address,
                 deployWalletValue: 0,
-                remainingGasTo: AccountUser.address,
+                remainingGasTo: AccountUser2.address,
                 payload: payload,
                 notify: true
             },
-            keyPair: keyPairs[1],
+            keyPair: keyPairs[2],
             value: locklift.utils.convertCrystal(4, 'nano')
         });
         
@@ -464,7 +467,7 @@ describe("Market contract reveal by soldCount", async function() {
         expect(await getBalanceFor(user2TokenWallet)).to.be.equal(1000, 'Wrong user2 balance');
         expect(await getBalanceFor(marketTokenWallet)).to.be.equal(0, 'Wrong market balance');
 
-        payload = await Market.call({ method: 'buildPayload', params: { id: 100, toNftNumber:  9}});
+        const payload = await Market.call({ method: 'buildPayload', params: { id: 100, toNftNumber:  10, user: AccountUser.address}});
 
         let tx = await AccountUser.runTarget({
             contract: userTokenWallet,
@@ -485,14 +488,6 @@ describe("Market contract reveal by soldCount", async function() {
         
         let marketParamsAfter  = await getMarketParams();
 
-        // console.log(marketParamsAfter.soldCount);
-        // console.log(marketParamsAfter.totalRaised);
-        // console.log(await getBalanceFor(userTokenWallet));
-        // console.log(await getBalanceFor(marketTokenWallet));
-        // console.log(marketParamsAfter.soldNfts);
-        // console.log(marketParamsAfter.soldCountDiscount);
-        // console.log(marketParamsAfter.soldCountAirdrop);
-        // console.log(marketParamsAfter.commonSoldCount);
         expect(marketParamsAfter.soldCount).to.be.equal(4, 'Wrong soldCount');
         expect(marketParamsAfter.totalRaised).to.be.equal(40, 'Wrong totalRaised');
         expect(await getBalanceFor(userTokenWallet)).to.be.equal(960, 'Wrong user balance ');
@@ -507,28 +502,27 @@ describe("Market contract reveal by soldCount", async function() {
         expect(marketParamsAfter.commonSoldCount).to.be.equal(8, 'Wrong soldCount');
     });
 
-    it("Check buy user2 with discount", async function() {
+    it("Check buy user2 with discount (1 discount, 5 by general price)", async function() {
         let marketParams  = await getMarketParams();
 
         expect(marketParams.state).to.be.equal(1, 'Wrong status');
-        expect(marketParams.soldCount).to.be.equal(4, 'Wrong soldCount');
         expect(marketParams.totalRaised).to.be.equal(40, 'Wrong totalRaised');
         expect(marketParams.soldNfts).to.eql({
             '0:9527f7dfb02a618163b2597b0695bdf09c2837a2c2a2df1ceb553b4027817d88': [ '0' ],
             '0:f8fb1ccafeada3358521495f8a0a98ce8181815c178d09f3ae28a34346a26fdb': [ '1', '2', '3' ],
              [AccountUser.address]: [ '4', '5', '6', '7' ]
           }, 'Wrong soldNfts');
+        expect(marketParams.soldCount).to.be.equal(4, 'Wrong soldCount');
         expect(marketParams.soldCountDiscount).to.be.equal(0, 'Wrong soldCountDiscount');
         expect(marketParams.soldCountAirdrop).to.be.equal(4, 'Wrong soldCountAirdrop');
         expect(marketParams.commonSoldCount).to.be.equal(8, 'Wrong soldCount');
         expect(marketParams.totalRaised).to.be.equal(await getBalanceFor(marketTokenWallet), 'Wrong totalRaised or market balance');
         expect(await getBalanceFor(userTokenWallet)).to.be.equal(960, 'Wrong user balance');
         expect(await getBalanceFor(user2TokenWallet)).to.be.equal(1000, 'Wrong user balance');
-        expect(marketParams.countDiscount).to.be.equal(1, 'Wrong countDiscount');
+        expect(marketParams.discountPrice).to.be.equal(7, 'Wrong countDiscount');
+        expect((await Market.call({ method: 'discountOf', params: {user: AccountUser2.address}})).toNumber()).to.be.equal(1, 'Wrong countDiscount');
 
-        // console.log('currPriceOf', (await Market.call({ method: 'currPriceOf', params: {user: AccountUser2.address }})).toNumber())
-
-        payload = await Market.call({ method: 'buildPayload', params: { id: 200, toNftNumber:  19}});
+        const payload = await Market.call({ method: 'buildPayload', params: { id: 200, toNftNumber:  10, user: AccountUser2.address}});
 
         await AccountUser2.runTarget({
             contract: user2TokenWallet,
@@ -546,16 +540,7 @@ describe("Market contract reveal by soldCount", async function() {
         });
 
         let marketParamsAfter  = await getMarketParams();
-        // console.log('soldNfts', marketParamsAfter.soldNfts)
-        // console.log('soldCountDiscount',marketParamsAfter.soldCountDiscount)
-        // console.log("discount", (await Market.call({ method: 'discountOf', params: {user: AccountUser2.address}})).toNumber())
-        // console.log('currPriceOf', (await Market.call({ method: 'currPriceOf', params: {user: AccountUser2.address }})).toNumber())
-        // console.log("user2 balance ", (await getUser2Balance()).toString());
-        // console.log("market balance ", (await getMarketBalance()).toString());
-        // console.log("soldNfts",marketParamsAfter.soldNfts)
-        // console.log("soldCount",marketParamsAfter.soldCount)
-        // console.log("totalRaised",marketParamsAfter.totalRaised)
-        expect(marketParamsAfter.countDiscount).to.be.equal(0, 'Wrong countDiscount');
+        expect((await Market.call({ method: 'discountOf', params: {user: AccountUser2.address}})).toNumber()).to.be.equal(0, 'Wrong countDiscount');
         expect(marketParamsAfter.soldCount).to.be.equal(9, 'Wrong soldCount');
         expect(marketParamsAfter.soldCountDiscount).to.be.equal(1, 'Wrong soldCountDiscount');
         expect(marketParamsAfter.soldCountAirdrop).to.be.equal(4, 'Wrong soldCountAirdrop');
@@ -573,11 +558,14 @@ describe("Market contract reveal by soldCount", async function() {
           }, 'Wrong soldNfts');
     });
 
-    it("Check try buy more than nft per hand for user2", async function() {
+    it("Check buy on the border for user", async function() {
         let marketParams  = await getMarketParams();
 
         expect(marketParams.state).to.be.equal(1, 'Wrong status');
         expect(marketParams.soldCount).to.be.equal(9, 'Wrong soldCount');
+        expect(marketParams.soldCountDiscount).to.be.equal(1, 'Wrong soldCountDiscount');
+        expect(marketParams.soldCountAirdrop).to.be.equal(4, 'Wrong soldCountAirdrop');
+        expect(marketParams.commonSoldCount).to.be.equal(14, 'Wrong soldCount');
         expect(marketParams.totalRaised).to.be.equal(97, 'Wrong totalRaised');
         expect(marketParams.soldNfts).to.eql({
             '0:9527f7dfb02a618163b2597b0695bdf09c2837a2c2a2df1ceb553b4027817d88': [ '0' ],
@@ -589,16 +577,69 @@ describe("Market contract reveal by soldCount", async function() {
         expect(await getBalanceFor(user2TokenWallet)).to.be.equal(943, 'Wrong user2 balance');
         expect(await getBalanceFor(marketTokenWallet)).to.be.equal(97, 'Wrong market balance');
         expect(marketParams.totalRaised).to.be.equal(await  getBalanceFor(marketTokenWallet), 'Wrong totalRaised or market balance');
-        expect(marketParams.countDiscount).to.be.equal(0, 'Wrong countDiscount');
-        console.log('countDiscount',marketParams.countDiscount);
-        console.log('currPriceOf', (await Market.call({ method: 'currPriceOf', params: {user: AccountUser2.address }})).toNumber())
-        payload = await Market.call({ method: 'buildPayload', params: { id: 200, toNftNumber:  9}});
 
-        await AccountUser2.runTarget({
+        const payload = await Market.call({ method: 'buildPayload', params: { id: 200, toNftNumber:  20, user: AccountUser.address}});
+
+        await AccountUser.runTarget({
             contract: userTokenWallet,
             method: 'transfer',
             params: {
-                amount: new BigNumber(10).shiftedBy(9).toString(),
+                amount: new BigNumber(30).shiftedBy(9).toString(),
+                recipient: Market.address,
+                deployWalletValue: 0,
+                remainingGasTo: AccountUser.address,
+                payload: payload,
+                notify: true
+            },
+            keyPair: keyPairs[1],
+            value: locklift.utils.convertCrystal(6, 'nano')
+        });
+
+        let marketParamsAfter  = await getMarketParams();
+        expect((await Market.call({ method: 'discountOf', params: {user: AccountUser2.address}})).toNumber()).to.be.equal(0, 'Wrong countDiscount');
+        expect(marketParamsAfter.soldCount).to.be.equal(11, 'Wrong soldCount');
+        expect(marketParamsAfter.soldCountDiscount).to.be.equal(1, 'Wrong soldCountDiscount');
+        expect(marketParamsAfter.soldCountAirdrop).to.be.equal(4, 'Wrong soldCountAirdrop');
+        expect(marketParamsAfter.commonSoldCount).to.be.equal(16, 'Wrong soldCount');
+        expect(marketParamsAfter.totalRaised).to.be.equal(127, 'Wrong totalRaised');
+        expect(marketParamsAfter.totalRaised).to.be.equal(await getBalanceFor(marketTokenWallet), 'Wrong totalRaised or market balance');
+        expect(await getBalanceFor(userTokenWallet)).to.be.equal(930, 'Wrong user balance ');
+        expect(await getBalanceFor(user2TokenWallet)).to.be.equal(943, 'Wrong user2 balance ');
+        expect(await getBalanceFor(marketTokenWallet)).to.be.equal(127, 'Wrong market balance ');
+        expect(marketParamsAfter.soldNfts).to.eql({
+            '0:9527f7dfb02a618163b2597b0695bdf09c2837a2c2a2df1ceb553b4027817d88': [ '0' ],
+            '0:f8fb1ccafeada3358521495f8a0a98ce8181815c178d09f3ae28a34346a26fdb': [ '1', '2', '3' ],
+            [AccountUser.address]: [ '4', '5', '6', '7' , '14', '15'],
+            [AccountUser2.address]: [ '8', '9', '10', '11' ,'12', '13']
+          }, 'Wrong soldNfts');
+    });
+    it("Check try buy more than nft per hand for user2", async function() {
+        let marketParams  = await getMarketParams();
+
+        expect(marketParams.state).to.be.equal(1, 'Wrong status');
+        expect(marketParams.soldCount).to.be.equal(11, 'Wrong soldCount');
+        expect(marketParams.soldCountDiscount).to.be.equal(1, 'Wrong soldCountDiscount');
+        expect(marketParams.soldCountAirdrop).to.be.equal(4, 'Wrong soldCountAirdrop');
+        expect(marketParams.commonSoldCount).to.be.equal(16, 'Wrong soldCount');
+        expect(marketParams.totalRaised).to.be.equal(127, 'Wrong totalRaised');
+        expect(marketParams.soldNfts).to.eql({
+            '0:9527f7dfb02a618163b2597b0695bdf09c2837a2c2a2df1ceb553b4027817d88': [ '0' ],
+            '0:f8fb1ccafeada3358521495f8a0a98ce8181815c178d09f3ae28a34346a26fdb': [ '1', '2', '3' ],
+            [AccountUser.address]: [ '4', '5', '6', '7' , '14', '15'],
+            [AccountUser2.address]: [ '8', '9', '10', '11' ,'12', '13']
+          }, 'Wrong soldNfts');
+        expect(await getBalanceFor(userTokenWallet)).to.be.equal(930, 'Wrong user balance ');
+        expect(await getBalanceFor(user2TokenWallet)).to.be.equal(943, 'Wrong user2 balance');
+        expect(await getBalanceFor(marketTokenWallet)).to.be.equal(127, 'Wrong market balance');
+        expect(marketParams.totalRaised).to.be.equal(await  getBalanceFor(marketTokenWallet), 'Wrong totalRaised or market balance');
+
+        const payload = await Market.call({ method: 'buildPayload', params: { id: 300, toNftNumber:  30, user: AccountUser2.address}});
+
+        const tx = await AccountUser2.runTarget({
+            contract: user2TokenWallet,
+            method: 'transfer',
+            params: {
+                amount: new BigNumber(520).shiftedBy(9).toString(),
                 recipient: Market.address,
                 deployWalletValue: 0,
                 remainingGasTo: AccountUser2.address,
@@ -609,231 +650,246 @@ describe("Market contract reveal by soldCount", async function() {
             value: locklift.utils.convertCrystal(6, 'nano')
         });
 
+        // console.log(tx);
         let marketParamsAfter  = await getMarketParams();
-        console.log('soldNfts', marketParamsAfter.soldNfts)
-        console.log(await getBalanceFor(user2TokenWallet));
-        console.log(marketParamsAfter.soldCount);
-        console.log(marketParamsAfter.totalRaised);
+        expect((await Market.call({ method: 'discountOf', params: {user: AccountUser2.address}})).toNumber()).to.be.equal(0, 'Wrong countDiscount');
+        expect(marketParamsAfter.soldCount).to.be.equal(marketParams.soldCount + 19, 'Wrong soldCount');
+        expect(marketParamsAfter.soldCountDiscount).to.be.equal(marketParams.soldCountDiscount, 'Wrong soldCountDiscount');
+        expect(marketParamsAfter.soldCountAirdrop).to.be.equal(marketParams.soldCountAirdrop, 'Wrong soldCountAirdrop');
+        expect(marketParamsAfter.commonSoldCount).to.be.equal(marketParams.commonSoldCount + 19, 'Wrong soldCount');
+        expect(marketParamsAfter.totalRaised).to.be.equal(marketParams.totalRaised + 480, 'Wrong totalRaised');
+        expect(marketParamsAfter.totalRaised).to.be.equal(await getBalanceFor(marketTokenWallet), 'Wrong totalRaised or market balance');
+        expect(await getBalanceFor(userTokenWallet)).to.be.equal(930, 'Wrong user balance ');
+        expect(await getBalanceFor(user2TokenWallet)).to.be.equal(943 - 480, 'Wrong user2 balance ');
+        expect(await getBalanceFor(marketTokenWallet)).to.be.equal(127 + 480, 'Wrong market balance ');
+        expect(marketParamsAfter.soldNfts).to.eql({
+            '0:9527f7dfb02a618163b2597b0695bdf09c2837a2c2a2df1ceb553b4027817d88': [ '0' ],
+            '0:f8fb1ccafeada3358521495f8a0a98ce8181815c178d09f3ae28a34346a26fdb': [ '1', '2', '3' ],
+            [AccountUser.address]: [ '4', '5', '6', '7' , '14', '15'],
+            [AccountUser2.address]: [ '8', '9', '10', '11' ,'12', '13', '16', '17', '18' ,'19', '20', '21', '22', '23' ,
+                '24' ,'25', '26', '27', '28', '29', '30', '31', '32', '33', '34']
+          }, 'Wrong soldNfts');
+    });
+    it("Check of purchase at the wrong price (less than necessary)", async function() {
+        let marketParams  = await getMarketParams();
 
-        // expect(marketParamsAfter.countDiscount).to.be.equal(0, 'Wrong countDiscount');
-        // expect(marketParamsAfter.soldCount).to.be.equal(28, 'Wrong soldCount');
-        // expect(marketParamsAfter.soldCountDiscount).to.be.equal(1, 'Wrong soldCountDiscount');
-        // expect(marketParamsAfter.soldCountAirdrop).to.be.equal(4, 'Wrong soldCountAirdrop');
-        // expect(marketParamsAfter.commonSoldCount).to.be.equal(33, 'Wrong soldCount');
-        // expect(marketParamsAfter.totalRaised).to.be.equal(347, 'Wrong totalRaised');
-        // expect(marketParamsAfter.totalRaised).to.be.equal(await getBalanceFor(marketTokenWallet), 'Wrong totalRaised or market balance');
-        // expect(await getBalanceFor(userTokenWallet)).to.be.equal(960, 'Wrong user balance ');
-        // expect(await getBalanceFor(user2TokenWallet)).to.be.equal(493, 'Wrong user2 balance ');
-        // expect(await getBalanceFor(marketTokenWallet)).to.be.equal(347, 'Wrong market balance ');
-        // expect(marketParamsAfter.soldNfts).to.eql({
-        //     '0:9527f7dfb02a618163b2597b0695bdf09c2837a2c2a2df1ceb553b4027817d88': [ '0' ],
-        //     '0:f8fb1ccafeada3358521495f8a0a98ce8181815c178d09f3ae28a34346a26fdb': [ '1', '2', '3' ],
-        //     [AccountUser.address]: [ '4', '5', '6', '7' ],
-        //     [AccountUser2.address]: [ '8', '9', '10', '11' ,'12', '13', '14', '15', '16','17', '18', '19', '20' ,'21', '22',
-        //         '23', '24','25', '26', '27', '28' ,'29', '30', '31', '32']
-        //   }, 'Wrong soldNfts');
+        expect(marketParams.soldCount).to.be.equal(30, 'Wrong soldCount');
+        expect(marketParams.soldCountDiscount).to.be.equal(1, 'Wrong soldCountDiscount');
+        expect(marketParams.soldCountAirdrop).to.be.equal(4, 'Wrong soldCountAirdrop');
+        expect(marketParams.commonSoldCount).to.be.equal(35, 'Wrong soldCount');
+        expect(marketParams.totalRaised).to.be.equal(607, 'Wrong totalRaised');
+        expect(await getBalanceFor(userTokenWallet)).to.be.equal(930, 'Wrong user balance ');
+        expect(await getBalanceFor(user2TokenWallet)).to.be.equal(463, 'Wrong user2 balance ');
+        expect(await getBalanceFor(marketTokenWallet)).to.be.equal(607, 'Wrong market balance ');
+        expect(marketParams.totalRaised).to.be.equal(await getBalanceFor(marketTokenWallet), 'Wrong totalRaised or market balance');
+        expect(marketParams.soldNfts).to.eql({
+            '0:9527f7dfb02a618163b2597b0695bdf09c2837a2c2a2df1ceb553b4027817d88': [ '0' ],
+            '0:f8fb1ccafeada3358521495f8a0a98ce8181815c178d09f3ae28a34346a26fdb': [ '1', '2', '3' ],
+            [AccountUser.address]: [ '4', '5', '6', '7' , '14', '15'],
+            [AccountUser2.address]: [ '8', '9', '10', '11' ,'12', '13', '16', '17', '18' ,'19', '20', '21', '22', '23' ,
+                '24' ,'25', '26', '27', '28', '29', '30', '31', '32', '33', '34']
+          }, 'Wrong soldNfts');
+
+        expect(marketParams.state).to.be.equal(1, 'Wrong status');
+
+        const payload = await Market.call({ method: 'buildPayload', params: { id: 400, toNftNumber:  40, user: AccountUser.address}});
+
+        await AccountUser.runTarget({
+            contract: userTokenWallet,
+            method: 'transfer',
+            params: {
+                amount: new BigNumber(39).shiftedBy(9).toString(),
+                recipient: Market.address,
+                deployWalletValue: 0,
+                remainingGasTo: AccountUser.address,
+                payload: payload,
+                notify: true
+            },
+            keyPair: keyPairs[1],
+            value: locklift.utils.convertCrystal(6, 'nano')
+        });
+
+        let marketParamsAfter  = await getMarketParams();
+
+        expect(marketParamsAfter.soldCount).to.be.equal(marketParams.soldCount, 'Wrong soldCount');
+        expect(marketParamsAfter.soldCountDiscount).to.be.equal(marketParams.soldCountDiscount, 'Wrong soldCountDiscount');
+        expect(marketParamsAfter.soldCountAirdrop).to.be.equal(marketParams.soldCountAirdrop, 'Wrong soldCountAirdrop');
+        expect(marketParamsAfter.commonSoldCount).to.be.equal(marketParams.commonSoldCount, 'Wrong soldCount');
+        expect(marketParamsAfter.totalRaised).to.be.equal(607, 'Wrong totalRaised');
+        expect(await getBalanceFor(userTokenWallet)).to.be.equal(930, 'Wrong user balance ');
+        expect(await getBalanceFor(user2TokenWallet)).to.be.equal(463, 'Wrong user2 balance ');
+        expect(await getBalanceFor(marketTokenWallet)).to.be.equal(607, 'Wrong market balance ');
+        expect(marketParamsAfter.totalRaised).to.be.equal(await getBalanceFor(marketTokenWallet), 'Wrong totalRaised or market balance');
+        expect(marketParamsAfter.soldNfts).to.eql({
+            '0:9527f7dfb02a618163b2597b0695bdf09c2837a2c2a2df1ceb553b4027817d88': [ '0' ],
+            '0:f8fb1ccafeada3358521495f8a0a98ce8181815c178d09f3ae28a34346a26fdb': [ '1', '2', '3' ],
+            [AccountUser.address]: [ '4', '5', '6', '7' , '14', '15'],
+            [AccountUser2.address]: [ '8', '9', '10', '11' ,'12', '13', '16', '17', '18' ,'19', '20', '21', '22', '23' ,
+                '24' ,'25', '26', '27', '28', '29', '30', '31', '32', '33', '34']
+          }, 'Wrong soldNfts');
     });
 
-    // it("Check of purchase at the wrong price (less than necessary)", async function() {
-    //     let marketParams  = await getMarketParams();
-    //
-    //     expect(marketParams.soldCount).to.be.equal(11, 'Wrong soldCount');
-    //     expect(marketParams.totalRaised).to.be.equal(120, 'Wrong totalRaised');
-    //     expect(await getBalanceFor(userTokenWallet)).to.be.equal(960, 'Wrong user balance ');
-    //     expect(await getBalanceFor(user2TokenWallet)).to.be.equal(920, 'Wrong user2 balance ');
-    //     expect(await getBalanceFor(marketTokenWallet)).to.be.equal(120, 'Wrong market balance ');
-    //     expect(marketParams.totalRaised).to.be.equal(await getBalanceFor(marketTokenWallet), 'Wrong totalRaised or market balance');
-    //     expect(marketParams.soldNfts).to.eql({
-    //         [AccountUser.address]: [ '0', '1', '2', '3' ],
-    //         [AccountUser2.address]: [ '4', '5', '6', '7' ,'8', '9','10']
-    //       }, 'Wrong soldNfts');
-    //
-    //     expect(marketParams.state).to.be.equal(1, 'Wrong status');
-    //
-    //     payload = await Market.call({ method: 'buildPayload', params: { id: 100, toNftNumber:  19}});
-    //
-    //     await AccountUser.runTarget({
-    //         contract: userTokenWallet,
-    //         method: 'transfer',
-    //         params: {
-    //             amount: new BigNumber(10).shiftedBy(9).toString(),
-    //             recipient: Market.address,
-    //             deployWalletValue: 0,
-    //             remainingGasTo: AccountUser.address,
-    //             payload: payload,
-    //             notify: true
-    //         },
-    //         keyPair: keyPairs[1],
-    //         value: locklift.utils.convertCrystal(6, 'nano')
-    //     });
-    //
-    //
-    //     let marketParamsAfter  = await getMarketParams();
-    //
-    //     console.log(marketParamsAfter.soldCount);
-    //     console.log(marketParamsAfter.totalRaised);
-    //     console.log(marketParamsAfter.soldNfts);
-    //
-    //     expect(marketParamsAfter.soldCount).to.be.equal(11, 'Wrong soldCount');
-    //     expect(marketParamsAfter.totalRaised).to.be.equal(120, 'Wrong totalRaised');
-    //     expect(await getBalanceFor(userTokenWallet)).to.be.equal(960, 'Wrong user balance ');
-    //     expect(await getBalanceFor(user2TokenWallet)).to.be.equal(920, 'Wrong user2 balance ');
-    //     expect(await getBalanceFor(marketTokenWallet)).to.be.equal(120, 'Wrong market balance ');
-    //     expect(marketParamsAfter.totalRaised).to.be.equal(await getBalanceFor(marketTokenWallet), 'Wrong totalRaised or market balance');
-    //     expect(marketParamsAfter.soldNfts).to.eql({
-    //         [AccountUser.address]: [ '0', '1', '2', '3'],
-    //         [AccountUser2.address]: [ '4', '5', '6', '7' ,'8', '9','10']
-    //       }, 'Wrong soldNfts');
-    // });
-    //
-    // it("Purchase over time for user", async function() {
-    //     let marketParams  = await getMarketParams();
-    //
-    //     expect(marketParams.state).to.be.equal(1, 'Wrong status');
-    //     expect(marketParams.soldCount).to.be.equal(11, 'Wrong soldCount');
-    //     expect(marketParams.totalRaised).to.be.equal(120, 'Wrong totalRaised');
-    //     expect(await getBalanceFor(userTokenWallet)).to.be.equal(960, 'Wrong user balance ');
-    //     expect(await getBalanceFor(user2TokenWallet)).to.be.equal(920, 'Wrong user2 balance ');
-    //     expect(await getBalanceFor(marketTokenWallet)).to.be.equal(120, 'Wrong market balance ');
-    //     expect(marketParams.totalRaised).to.be.equal(await getBalanceFor(marketTokenWallet), 'Wrong totalRaised or market balance');
-    //     expect(marketParams.soldNfts).to.eql({
-    //         [AccountUser.address]: [ '0', '1', '2', '3' ],
-    //         [AccountUser2.address]: [ '4', '5', '6', '7' ,'8', '9','10']
-    //         }, 'Wrong soldNfts');
-    //
-    //     payload = await Market.call({ method: 'buildPayload', params: { id: 100, toNftNumber:  19}});
-    //
-    //     await AccountUser.runTarget({
-    //         contract: userTokenWallet,
-    //         method: 'transfer',
-    //         params: {
-    //             amount: new BigNumber(60).shiftedBy(9).toString(),
-    //             recipient: Market.address,
-    //             deployWalletValue: 0,
-    //             remainingGasTo: AccountUser.address,
-    //             payload: payload,
-    //             notify: true
-    //         },
-    //         keyPair: keyPairs[1],
-    //         value: locklift.utils.convertCrystal(6, 'nano')
-    //     });
-    //
-    //
-    //     let marketParamsAfter  = await getMarketParams();
-    //
-    //     expect(marketParamsAfter.soldCount).to.be.equal(14, 'Wrong soldCount');
-    //     expect(marketParamsAfter.totalRaised).to.be.equal(180, 'Wrong totalRaised');
-    //     expect(await getBalanceFor(userTokenWallet)).to.be.equal(900, 'Wrong user balance ');
-    //     expect(await getBalanceFor(user2TokenWallet)).to.be.equal(920, 'Wrong user2 balance ');
-    //     expect(await getBalanceFor(marketTokenWallet)).to.be.equal(180, 'Wrong market balance ');
-    //     expect(marketParamsAfter.totalRaised).to.be.equal(await getBalanceFor(marketTokenWallet), 'Wrong totalRaised or market balance');
-    //     expect(marketParamsAfter.soldNfts).to.eql({
-    //         [AccountUser.address]: [ '0', '1', '2', '3', '11', '12', '13'],
-    //         [AccountUser2.address]: [ '4', '5', '6', '7' ,'8', '9','10']
-    //         }, 'Wrong soldNfts');
-    // });
-    //
-    // it("Check change status when all extended", async function() {
-    //
-    //     let marketParams  = await getMarketParams();
-    //     expect(marketParams.soldCount).to.be.equal(marketParams.totalCount, 'Wrong totalCount');
-    //     expect(marketParams.state).to.be.equal(2, 'Wrong state');
-    //     expect(marketParams.startIndex).to.be.null;
-    //
-    //     await AccountOwner.runTarget({
-    //         contract: Market,
-    //         method: 'reveal',
-    //         params: {},
-    //         keyPair: keyPairs[0],
-    //         value: locklift.utils.convertCrystal(3, 'nano')
-    //     });
-    //
-    //     let marketParamsAfter  = await getMarketParams();
-    //
-    //     console.log("startIndex",marketParamsAfter.startIndex);
-    //     expect(marketParamsAfter.state).to.be.equal(3, 'Wrong state');
-    //     expect(marketParamsAfter.startIndex).to.be.not.null;
-    // });
-    //
-    // it("Check claim by the user", async function() {
-    //     let marketParams  = await getMarketParams();
-    //     expect(marketParams.state).to.be.equal(3, 'Wrong state');
-    //     expect(marketParams.startIndex).to.be.not.null;
-    //     expect(marketParams.mintCount).to.be.equal(0, 'Wrong mintCount');
-    //     expect(marketParams.claimNft).to.eql({}, 'Wrong claimNft');
-    //
-    //
-    //     await AccountUser.runTarget({
-    //         contract: Market,
-    //         method: 'claimNfts',
-    //         params: {},
-    //         keyPair: keyPairs[1],
-    //         value: locklift.utils.convertCrystal(100, 'nano')
-    //     });
-    //
-    //     let marketParamsAfter  = await getMarketParams();
-    //
-    //     expect(marketParamsAfter.mintCount).to.be.equal(7, 'Wrong soldCount');
-    //     expect(marketParamsAfter.claimNft).to.eql({[AccountUser.address]: true}, 'Wrong claimNft');
-    //
-    // });
-    //
-    // it("Check claim by the owner", async function() {
-    //     let marketParams  = await getMarketParams();
-    //     expect(marketParams.state).to.be.equal(3, 'Wrong state');
-    //     expect(marketParams.startIndex).to.be.not.null;
-    //     expect(marketParams.mintCount).to.be.equal(7, 'Wrong mintCount');
-    //     expect(marketParams.claimNft).to.eql({[AccountUser.address]: true}, 'Wrong claimNft');
-    //
-    //
-    //     let keys = Object.keys(marketParams.soldNfts);
-    //
-    //     for (let i = 0; i < keys.length; i ++) {
-    //         await AccountOwner.runTarget({
-    //             contract: Market,
-    //             method: 'claimNftsFor',
-    //             params: {
-    //                 user: keys[i]
-    //             },
-    //             keyPair: keyPairs[0],
-    //             value: locklift.utils.convertCrystal(250, 'nano')
-    //         });
-    //     }
-    //
-    //     let marketParamsAfter  = await getMarketParams();
-    //
-    //     expect(marketParamsAfter.mintCount).to.be.equal(14, 'Wrong soldCount');
-    //     expect(marketParamsAfter.claimNft).to.eql({[AccountUser.address]: true, [AccountUser2.address]: true}, 'Wrong claimNft');
-    //
-    // });
-    //
-    // it("Check withdraw", async function() {
-    //     let marketParams  = await getMarketParams();
-    //     expect(marketParams.state).to.be.equal(3, 'Wrong state');
-    //     expect(marketParams.totalRaised).to.be.equal(await getBalanceFor(marketTokenWallet), 'Wrong totalRaised');
-    //     expect(marketParams.totalRaised).to.be.equal(180, 'Wrong totalRaised');
-    //     expect(marketParams.totalWithdraw).to.be.equal(0, 'Wrong totalWithdraw');
-    //     expect(await getBalanceFor(ownerTokenWallet)).to.be.equal(110, 'Wrong ownerTokenWallet');
-    //
-    //     await AccountOwner.runTarget({
-    //         contract: Market,
-    //         method: 'withdraw',
-    //         params: {
-    //             amount: new BigNumber(180).shiftedBy(9).toString(),
-    //             recipient: AccountOwner.address,
-    //         },
-    //         keyPair: keyPairs[0],
-    //         value: locklift.utils.convertCrystal(5, 'nano')
-    //     });
-    //
-    //     let marketParamsAfter  = await getMarketParams();
-    //
-    //     console.log(marketParamsAfter.totalWithdraw);
-    //     expect(marketParamsAfter.totalRaised).to.be.equal(180, 'Wrong totalRaised');
-    //     expect(marketParamsAfter.totalWithdraw).to.be.equal(180, 'Wrong totalWithdraw');
-    //     expect(await getBalanceFor(ownerTokenWallet)).to.be.equal(290, 'Wrong owner balance');
-    //     expect(await getBalanceFor(marketTokenWallet)).to.be.equal(0, 'Wrong market balance');
-    // });
+    it("Buying the rest for user", async function() {
+        let marketParams  = await getMarketParams();
+
+        expect(marketParams.soldCount).to.be.equal(30, 'Wrong soldCount');
+        expect(marketParams.soldCountDiscount).to.be.equal(1, 'Wrong soldCountDiscount');
+        expect(marketParams.soldCountAirdrop).to.be.equal(4, 'Wrong soldCountAirdrop');
+        expect(marketParams.commonSoldCount).to.be.equal(35, 'Wrong soldCount');
+        expect(marketParams.totalRaised).to.be.equal(607, 'Wrong totalRaised');
+        expect(await getBalanceFor(userTokenWallet)).to.be.equal(930, 'Wrong user balance ');
+        expect(await getBalanceFor(user2TokenWallet)).to.be.equal(463, 'Wrong user2 balance ');
+        expect(await getBalanceFor(marketTokenWallet)).to.be.equal(607, 'Wrong market balance ');
+        expect(marketParams.totalRaised).to.be.equal(await getBalanceFor(marketTokenWallet), 'Wrong totalRaised or market balance');
+        expect(marketParams.soldNfts).to.eql({
+            '0:9527f7dfb02a618163b2597b0695bdf09c2837a2c2a2df1ceb553b4027817d88': [ '0' ],
+            '0:f8fb1ccafeada3358521495f8a0a98ce8181815c178d09f3ae28a34346a26fdb': [ '1', '2', '3' ],
+            [AccountUser.address]: [ '4', '5', '6', '7' , '14', '15'],
+            [AccountUser2.address]: [ '8', '9', '10', '11' ,'12', '13', '16', '17', '18' ,'19', '20', '21', '22', '23' ,
+                '24' ,'25', '26', '27', '28', '29', '30', '31', '32', '33', '34']
+          }, 'Wrong soldNfts');
+
+        expect(marketParams.state).to.be.equal(1, 'Wrong status');
+
+        const payload = await Market.call({ method: 'buildPayload', params: { id: 500, toNftNumber:  50, user: AccountUser.address}});
+
+        await AccountUser.runTarget({
+            contract: userTokenWallet,
+            method: 'transfer',
+            params: {
+                amount: new BigNumber(800).shiftedBy(9).toString(),
+                recipient: Market.address,
+                deployWalletValue: 0,
+                remainingGasTo: AccountUser.address,
+                payload: payload,
+                notify: true
+            },
+            keyPair: keyPairs[1],
+            value: locklift.utils.convertCrystal(6, 'nano')
+        });
+
+        let marketParamsAfter  = await getMarketParams();
+        expect(marketParamsAfter.soldCount).to.be.equal(marketParams.soldCount + 15, 'Wrong soldCount');
+        expect(marketParamsAfter.soldCountDiscount).to.be.equal(marketParams.soldCountDiscount, 'Wrong soldCountDiscount');
+        expect(marketParamsAfter.soldCountAirdrop).to.be.equal(marketParams.soldCountAirdrop, 'Wrong soldCountAirdrop');
+        expect(marketParamsAfter.commonSoldCount).to.be.equal(marketParams.commonSoldCount + 15, 'Wrong soldCount');
+        expect(marketParamsAfter.totalRaised).to.be.equal(1257, 'Wrong totalRaised');
+        expect(await getBalanceFor(userTokenWallet)).to.be.equal(280, 'Wrong user balance ');
+        expect(await getBalanceFor(user2TokenWallet)).to.be.equal(463, 'Wrong user2 balance ');
+        expect(await getBalanceFor(marketTokenWallet)).to.be.equal(1257, 'Wrong market balance ');
+        expect(marketParamsAfter.totalRaised).to.be.equal(await getBalanceFor(marketTokenWallet), 'Wrong totalRaised or market balance');
+        expect(marketParamsAfter.soldNfts).to.eql({
+            '0:9527f7dfb02a618163b2597b0695bdf09c2837a2c2a2df1ceb553b4027817d88': [ '0' ],
+            '0:f8fb1ccafeada3358521495f8a0a98ce8181815c178d09f3ae28a34346a26fdb': [ '1', '2', '3' ],
+            [AccountUser.address]: [ '4', '5', '6', '7' , '14', '15', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49'],
+            [AccountUser2.address]: [ '8', '9', '10', '11' ,'12', '13', '16', '17', '18' ,'19', '20', '21', '22', '23' ,
+                '24' ,'25', '26', '27', '28', '29', '30', '31', '32', '33', '34']
+          }, 'Wrong soldNfts');
+    });
+
+    it("Check change status when all extended", async function() {
+
+        let marketParams  = await getMarketParams();
+        expect(marketParams.commonSoldCount).to.be.equal(marketParams.totalCount, 'Wrong totalCount');
+        expect(marketParams.state).to.be.equal(2, 'Wrong state');
+        expect(marketParams.startIndex).to.be.null;
+
+        await AccountOwner.runTarget({
+            contract: Market,
+            method: 'reveal',
+            params: {},
+            keyPair: keyPairs[0],
+            value: locklift.utils.convertCrystal(3, 'nano')
+        });
+
+        let marketParamsAfter  = await getMarketParams();
+
+        console.log("startIndex",marketParamsAfter.startIndex);
+        expect(marketParamsAfter.state).to.be.equal(3, 'Wrong state');
+        expect(marketParamsAfter.startIndex).to.be.not.null;
+    });
+
+    it("Check claim by the user", async function() {
+        let marketParams  = await getMarketParams();
+        expect(marketParams.state).to.be.equal(3, 'Wrong state');
+        expect(marketParams.startIndex).to.be.not.null;
+        expect(marketParams.mintCount).to.be.equal(0, 'Wrong mintCount');
+        expect(marketParams.claimNft).to.eql({}, 'Wrong claimNft');
 
 
+        await AccountUser.runTarget({
+            contract: Market,
+            method: 'claimNfts',
+            params: {},
+            keyPair: keyPairs[1],
+            value: locklift.utils.convertCrystal(100, 'nano')
+        });
+
+        let marketParamsAfter  = await getMarketParams();
+
+        expect(marketParamsAfter.mintCount).to.be.equal(21, 'Wrong soldCount');
+        expect(marketParamsAfter.claimNft).to.eql({[AccountUser.address]: true}, 'Wrong claimNft');
+
+    });
+
+    it("Check claim by the owner", async function() {
+        let marketParams  = await getMarketParams();
+        expect(marketParams.state).to.be.equal(3, 'Wrong state');
+        expect(marketParams.startIndex).to.be.not.null;
+        expect(marketParams.mintCount).to.be.equal(21, 'Wrong mintCount');
+        expect(marketParams.claimNft).to.eql({[AccountUser.address]: true}, 'Wrong claimNft');
+
+
+        let keys = Object.keys(marketParams.soldNfts);
+
+        for (let i = 0; i < keys.length; i ++) {
+            await AccountOwner.runTarget({
+                contract: Market,
+                method: 'claimNftsFor',
+                params: {
+                    user: keys[i]
+                },
+                keyPair: keyPairs[0],
+                value: locklift.utils.convertCrystal(250, 'nano')
+            });
+        }
+
+        let marketParamsAfter  = await getMarketParams();
+
+        expect(marketParamsAfter.mintCount).to.be.equal(50, 'Wrong soldCount');
+        expect(marketParamsAfter.claimNft).to.eql({
+            [AccountUser.address]: true,
+            [AccountUser2.address]: true,
+            '0:9527f7dfb02a618163b2597b0695bdf09c2837a2c2a2df1ceb553b4027817d88': true,
+            '0:f8fb1ccafeada3358521495f8a0a98ce8181815c178d09f3ae28a34346a26fdb': true
+        }, 'Wrong claimNft');
+
+    });
+
+    it("Check withdraw", async function() {
+        let marketParams  = await getMarketParams();
+        expect(marketParams.state).to.be.equal(3, 'Wrong state');
+        expect(marketParams.totalRaised).to.be.equal(await getBalanceFor(marketTokenWallet), 'Wrong totalRaised');
+        expect(marketParams.totalRaised).to.be.equal(1257, 'Wrong totalRaised');
+        expect(marketParams.totalWithdraw).to.be.equal(0, 'Wrong totalWithdraw');
+        expect(await getBalanceFor(ownerTokenWallet)).to.be.equal(100, 'Wrong ownerTokenWallet');
+
+        await AccountOwner.runTarget({
+            contract: Market,
+            method: 'withdraw',
+            params: {
+                amount: new BigNumber(1257).shiftedBy(9).toString(),
+                recipient: AccountOwner.address,
+            },
+            keyPair: keyPairs[0],
+            value: locklift.utils.convertCrystal(5, 'nano')
+        });
+
+        let marketParamsAfter  = await getMarketParams();
+
+        expect(marketParamsAfter.totalRaised).to.be.equal(1257, 'Wrong totalRaised');
+        expect(marketParamsAfter.totalWithdraw).to.be.equal(1257, 'Wrong totalWithdraw');
+        expect(await getBalanceFor(ownerTokenWallet)).to.be.equal(1357, 'Wrong owner balance');
+        expect(await getBalanceFor(marketTokenWallet)).to.be.equal(0, 'Wrong market balance');
+    });
 });

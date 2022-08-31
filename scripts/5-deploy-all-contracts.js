@@ -62,6 +62,10 @@ async function main() {
     migration.store(Collection, 'Collection');
     console.log('Collection deployed', Collection.address);
 
+    // add airdrop.json and whiteList.json
+    const airDrop = JSON.parse(fs.readFileSync("airdrop.json", 'utf8'));
+    const whiteList = JSON.parse(fs.readFileSync("whitelist.json", 'utf8'));
+
     // deploy market
     const Market = await locklift.factory.getContract("Market");
     const response = await prompts([
@@ -98,6 +102,9 @@ async function main() {
             _provenanceHash: jsonData.provenanceHash,
             _tokenRoot: response.tokenRoot,
             _priceRule: jsonData.priceRule,
+            _discountPrice: jsonData.discountPrice,
+            _whiteList: whiteList,
+            _airDrop: airDrop
         },
         initParams: {
             nonce_: getRandomNonce(),
@@ -106,7 +113,7 @@ async function main() {
     }, locklift.utils.convertCrystal(5, 'nano'));
 
     migration.store(Market, 'Market');
-    console.log('Market deployed', Collection.address);
+    console.log('Market deployed', Market.address);
 
     // make the Market contract the manager of the Collection contract
     await Account.runTarget({

@@ -387,7 +387,8 @@ contract Market is
             soldCountDiscount,
             airDrop,
             whiteList,
-            soldCountAirdrop
+            soldCountAirdrop,
+            discountPrice
         );
 
         tvm.setcode(code);

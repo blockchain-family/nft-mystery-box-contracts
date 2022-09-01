@@ -2054,6 +2054,7 @@ CALLREF {
 	CALL $_reserve_internal_macro$
 }
 .loc ../contracts/Market.sol, 367
+GETGLOB 28
 GETGLOB 27
 PUSHINT 34
 GETGLOBVAR
@@ -2095,7 +2096,7 @@ STU 16
 STU 16
 STU 16
 STU 16
-PUSHINT 17
+PUSHINT 18
 ROLLREVX
 NEWC
 STSLICE
@@ -2117,31 +2118,32 @@ PUSHCONT {
 	STU 32
 }
 IFELSE
+ROLLREV 11
+NEWC
+STSLICE
 ROLLREV 10
 NEWC
 STSLICE
-ROLLREV 9
-NEWC
-STSLICE
 STDICT
 STDICT
 STDICT
-ROLLREV 5
+ROLLREV 6
 NEWC
 STDICT
 STU 16
 STDICT
 STDICT
 STU 16
+STU 128
 STBREFR
 STBREFR
 STBREFR
 STBREFR
 ENDC
-.loc ../contracts/Market.sol, 393
+.loc ../contracts/Market.sol, 394
 OVER
 SETCODE
-.loc ../contracts/Market.sol, 394
+.loc ../contracts/Market.sol, 395
 SWAP
 CTOS
 DUP
@@ -2156,7 +2158,7 @@ PLDREF
 CTOS
 BLESS
 POP C3
-.loc ../contracts/Market.sol, 396
+.loc ../contracts/Market.sol, 397
 CALLREF {
 	CALL $:onCodeUpgrade$
 }

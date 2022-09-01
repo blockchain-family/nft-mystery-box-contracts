@@ -10,7 +10,7 @@ IFREF {
 GETGLOB 6
 THROWIF 51
 ENDS
-.loc ../contracts/NewMarket.sol, 48
+.loc ../contracts/NewMarket.sol, 55
 THROW 100
 .loc ../contracts/NewMarket.sol, 0
 
@@ -23,7 +23,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/NewMarket.sol, 50
+.loc ../contracts/NewMarket.sol, 57
 ENDS
 .loc ../contracts/NewMarket.sol, 0
 CALLREF {
@@ -57,7 +57,7 @@ IFREF {
 THROW 0
 
 .macro nftData_internal_macro
-.loc ../contracts/NewMarket.sol, 51
+.loc ../contracts/NewMarket.sol, 58
 GETGLOB 26
 .loc ../contracts/NewMarket.sol, 0
 
@@ -70,7 +70,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/NewMarket.sol, 54
+.loc ../contracts/NewMarket.sol, 61
 ENDS
 .loc ../contracts/NewMarket.sol, 0
 CALLREF {
@@ -108,15 +108,19 @@ THROW 0
 CALL $state_internal_macro$
 
 .macro state_internal_macro
-.loc ../contracts/NewMarket.sol, 54
+.loc ../contracts/NewMarket.sol, 61
 PUSHINT 0
-.loc ../contracts/NewMarket.sol, 55
+.loc ../contracts/NewMarket.sol, 62
+CALLREF {
+	CALL $commonSoldCount_internal_macro$
+}
+.loc ../contracts/NewMarket.sol, 63
 NOW
 GETGLOB 18
 LESS
 PUSHCONT {
-	.loc ../contracts/NewMarket.sol, 56
-	DROP
+	.loc ../contracts/NewMarket.sol, 64
+	DROP2
 	PUSHINT 0
 	.loc ../contracts/NewMarket.sol, 0
 }
@@ -127,18 +131,18 @@ PUSHCONT {
 		NOW
 		GETGLOB 19
 		GEQ
-		GETGLOB 15
+		SWAP
 		GETGLOB 14
 		EQUAL
 		OR
 		PUSHCONT {
-			.loc ../contracts/NewMarket.sol, 60
+			.loc ../contracts/NewMarket.sol, 68
 			DROP
 			PUSHINT 2
 			.loc ../contracts/NewMarket.sol, 0
 		}
 		PUSHCONT {
-			.loc ../contracts/NewMarket.sol, 62
+			.loc ../contracts/NewMarket.sol, 70
 			DROP
 			PUSHINT 1
 			.loc ../contracts/NewMarket.sol, 0
@@ -146,8 +150,8 @@ PUSHCONT {
 		IFELSE
 	}
 	PUSHCONT {
-		.loc ../contracts/NewMarket.sol, 58
-		DROP
+		.loc ../contracts/NewMarket.sol, 66
+		DROP2
 		PUSHINT 3
 		.loc ../contracts/NewMarket.sol, 0
 	}
@@ -156,9 +160,66 @@ PUSHCONT {
 IFELSE
 .loc ../contracts/NewMarket.sol, 0
 
+.macro commonSoldCount
+DROP
+GETGLOB 6
+THROWIFNOT 76
+GETGLOB 2
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+.loc ../contracts/NewMarket.sol, 74
+ENDS
+.loc ../contracts/NewMarket.sol, 0
+CALLREF {
+	CALL $commonSoldCount_internal_macro$
+}
+OVER
+PUSHCONT {
+	PUSH S3
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHSLICE x0000000000000000000000003fcf3de82_
+	STSLICER
+	STU 16
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+PUSHCONT {
+	DROP
+}
+IFELSE
+IFREF {
+	CALL $upd_only_time_in_c4$
+}
+THROW 0
+
+.globl	commonSoldCount_internal
+.type	commonSoldCount_internal, @function
+CALL $commonSoldCount_internal_macro$
+
+.macro commonSoldCount_internal_macro
+.loc ../contracts/NewMarket.sol, 75
+GETGLOB 15
+GETGLOB 30
+ADD
+UFITS 16
+GETGLOB 31
+ADD
+UFITS 16
+.loc ../contracts/NewMarket.sol, 0
+
 .internal-alias :onCodeUpgrade, 2
 .internal :onCodeUpgrade
-.loc ../contracts/NewMarket.sol, 67
+.loc ../contracts/NewMarket.sol, 79
 PUSHINT 0
 NEWDICT
 PAIR
@@ -210,7 +271,20 @@ NEWDICT
 SETGLOB 28
 NEWDICT
 SETGLOB 29
-.loc ../contracts/NewMarket.sol, 69
+PUSHINT 0
+SETGLOB 30
+PUSHINT 0
+SETGLOB 31
+PUSHINT 0
+PUSHINT 32
+SETGLOBVAR
+NEWDICT
+PUSHINT 33
+SETGLOBVAR
+NEWDICT
+PUSHINT 34
+SETGLOBVAR
+.loc ../contracts/NewMarket.sol, 80
 CTOS
 LDMSGADDR
 LDU 32
@@ -252,9 +326,17 @@ LDMSGADDR
 LDDICT
 LDDICT
 LDDICT
-LDDICT
+LDREF
 ENDS
-PUSHINT 19
+CTOS
+LDDICT
+LDU 16
+LDDICT
+LDDICT
+LDU 16
+LDU 128
+ENDS
+PUSHINT 24
 PUSHINT 0
 REVX
 SETGLOB 11
@@ -276,7 +358,15 @@ SETGLOB 26
 SETGLOB 27
 SETGLOB 28
 SETGLOB 29
-.loc ../contracts/NewMarket.sol, 113
+SETGLOB 30
+PUSHINT 33
+SETGLOBVAR
+PUSHINT 34
+SETGLOBVAR
+SETGLOB 31
+PUSHINT 32
+SETGLOBVAR
+.loc ../contracts/NewMarket.sol, 132
 GETGLOB 11
 NEWC
 STSLICECONST x62_
@@ -302,7 +392,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/NewMarket.sol, 117
+.loc ../contracts/NewMarket.sol, 135
 ENDS
 .loc ../contracts/NewMarket.sol, 0
 CALLREF {
@@ -341,7 +431,7 @@ THROW 0
 CALL $bla_internal_macro$
 
 .macro bla_internal_macro
-.loc ../contracts/NewMarket.sol, 118
+.loc ../contracts/NewMarket.sol, 136
 PUSHREF {
 	.blob x626c61626c61626c61
 }
@@ -395,6 +485,14 @@ LDMSGADDR
 LDDICT
 LDDICT
 LDDICT
+LDREF
+ENDS
+CTOS
+LDDICT
+LDU 16
+LDU 16
+LDU 128
+LDDICT
 LDDICT
 ENDS
 PUSHINT 0
@@ -408,10 +506,10 @@ GETGLOB 6
 GETGLOB 7
 GETGLOB 8
 GETGLOB 9
-PUSHINT 20
+PUSHINT 25
 PUSHINT 10
 BLKSWX
-PUSHINT 30
+PUSHINT 35
 TUPLEVAR
 POP C7
 SETGLOB 3
@@ -471,7 +569,11 @@ PUSHCONT {
 	DUP
 	NEWDICT
 	BLKPUSH 3, 0
-	PUSHINT 30
+	PUSHINT 0
+	BLKPUSH 2, 0
+	NEWDICT
+	DUP
+	PUSHINT 35
 	TUPLEVAR
 	POP C7
 	PUSHINT 64
@@ -489,12 +591,12 @@ IFREFELSE {
 .macro c7_to_c4
 PUSH C7
 FALSE
-PUSHINT 30
+PUSHINT 35
 SETINDEXVARQ
-PUSHINT 31
+PUSHINT 36
 UNTUPLEVAR
 DROP
-PUSHINT 30
+PUSHINT 35
 PUSHINT 0
 REVX
 BLKDROP 10
@@ -511,7 +613,7 @@ STU 32
 STDICT
 STSLICE
 STU 64
-PUSHINT 17
+PUSHINT 22
 ROLLREVX
 NEWC
 STU 16
@@ -537,16 +639,24 @@ PUSHCONT {
 	STU 32
 }
 IFELSE
+ROLLREV 11
+NEWC
+STSLICE
+ROLLREV 10
+NEWC
+STSLICE
+STDICT
+STDICT
+STDICT
 ROLLREV 6
 NEWC
-STSLICE
-ROLLREV 5
-NEWC
-STSLICE
+STDICT
+STU 16
+STU 16
+STU 128
 STDICT
 STDICT
-STDICT
-STDICT
+STBREFR
 STBREFR
 STBREFR
 STBREFR
@@ -987,9 +1097,112 @@ PUSHCONT {
 IF
 THROW 0
 
+.macro soldCountDiscount
+DROP
+ENDS
+CALLREF {
+	CALL $c4_to_c7$
+}
+GETGLOB 30
+OVER
+PUSHCONT {
+	PUSHSLICE xc0000000000000000000000000c6ac09b5
+	NEWC
+	STSLICE
+	STU 16
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+THROW 0
+
+.macro soldCountAirdrop
+DROP
+ENDS
+CALLREF {
+	CALL $c4_to_c7$
+}
+GETGLOB 31
+OVER
+PUSHCONT {
+	PUSHSLICE xc0000000000000000000000000aad35611
+	NEWC
+	STSLICE
+	STU 16
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+THROW 0
+
+.macro discountPrice
+DROP
+ENDS
+CALLREF {
+	CALL $c4_to_c7$
+}
+PUSHINT 32
+GETGLOBVAR
+OVER
+PUSHCONT {
+	PUSHSLICE xc0000000000000000000000000e4f086cc
+	NEWC
+	STSLICE
+	STU 128
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+THROW 0
+
+.macro airDrop
+DROP
+ENDS
+CALLREF {
+	CALL $c4_to_c7$
+}
+PUSHINT 33
+GETGLOBVAR
+OVER
+PUSHCONT {
+	PUSHSLICE xc0000000000000000000000000df2f364f
+	NEWC
+	STSLICE
+	STDICT
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+THROW 0
+
+.macro whiteList
+DROP
+ENDS
+CALLREF {
+	CALL $c4_to_c7$
+}
+PUSHINT 34
+GETGLOBVAR
+OVER
+PUSHCONT {
+	PUSHSLICE xc0000000000000000000000000cd9f055d
+	NEWC
+	STSLICE
+	STDICT
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+THROW 0
+
 .macro public_function_selector
 DUP
-PUSHINT 1855248818
+PUSHINT 1596929615
 LEQ
 IFJMPREF {
 	DUP
@@ -1051,7 +1264,7 @@ IFJMPREF {
 		}
 	}
 	DUP
-	PUSHINT 1450799749
+	PUSHINT 1302267229
 	LEQ
 	IFJMPREF {
 		DUP
@@ -1060,6 +1273,29 @@ IFJMPREF {
 		IFJMPREF {
 			CALL $totalRaised$
 		}
+		DUP
+		PUSHINT 718493201
+		EQUAL
+		IFJMPREF {
+			CALL $soldCountAirdrop$
+		}
+		DUP
+		PUSHINT 1185679797
+		EQUAL
+		IFJMPREF {
+			CALL $soldCountDiscount$
+		}
+		DUP
+		PUSHINT 1302267229
+		EQUAL
+		IFJMPREF {
+			CALL $whiteList$
+		}
+	}
+	DUP
+	PUSHINT 1596929615
+	LEQ
+	IFJMPREF {
 		DUP
 		PUSHINT 1387334194
 		EQUAL
@@ -1078,9 +1314,20 @@ IFJMPREF {
 		IFJMPREF {
 			CALL $claimNft$
 		}
+		DUP
+		PUSHINT 1596929615
+		EQUAL
+		IFJMPREF {
+			CALL $airDrop$
+		}
 	}
+}
+DUP
+PUSHINT 2134701984
+LEQ
+IFJMPREF {
 	DUP
-	PUSHINT 1855248818
+	PUSHINT 1756716863
 	LEQ
 	IFJMPREF {
 		DUP
@@ -1088,6 +1335,12 @@ IFJMPREF {
 		EQUAL
 		IFJMPREF {
 			CALL $startDate$
+		}
+		DUP
+		PUSHINT 1693484748
+		EQUAL
+		IFJMPREF {
+			CALL $discountPrice$
 		}
 		DUP
 		PUSHINT 1717758812
@@ -1101,41 +1354,52 @@ IFJMPREF {
 		IFJMPREF {
 			CALL $constructor$
 		}
+	}
+	DUP
+	PUSHINT 2092935922
+	LEQ
+	IFJMPREF {
 		DUP
 		PUSHINT 1855248818
 		EQUAL
 		IFJMPREF {
 			CALL $provenanceHash$
 		}
-	}
-}
-DUP
-PUSHINT 2120339069
-LEQ
-IFJMPREF {
-	DUP
-	PUSHINT 1896024939
-	EQUAL
-	IFJMPREF {
-		CALL $tokenWallet$
-	}
-	DUP
-	PUSHINT 2087895040
-	EQUAL
-	IFJMPREF {
-		CALL $revealDate$
-	}
-	DUP
-	PUSHINT 2092935922
-	EQUAL
-	IFJMPREF {
-		CALL $tokenRoot$
+		DUP
+		PUSHINT 1896024939
+		EQUAL
+		IFJMPREF {
+			CALL $tokenWallet$
+		}
+		DUP
+		PUSHINT 2087895040
+		EQUAL
+		IFJMPREF {
+			CALL $revealDate$
+		}
+		DUP
+		PUSHINT 2092935922
+		EQUAL
+		IFJMPREF {
+			CALL $tokenRoot$
+		}
 	}
 	DUP
-	PUSHINT 2120339069
-	EQUAL
+	PUSHINT 2134701984
+	LEQ
 	IFJMPREF {
-		CALL $totalWithdraw$
+		DUP
+		PUSHINT 2120339069
+		EQUAL
+		IFJMPREF {
+			CALL $totalWithdraw$
+		}
+		DUP
+		PUSHINT 2134701984
+		EQUAL
+		IFJMPREF {
+			CALL $commonSoldCount$
+		}
 	}
 }
 

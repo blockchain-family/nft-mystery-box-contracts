@@ -948,7 +948,6 @@ describe("Market contract reveal by soldCount", async function() {
         });
 
         let marketParamsAfter  = await getMarketParams();
-
         expect(marketParamsAfter.mintCount).to.be.equal(3, 'Wrong soldCount');
         expect(marketParamsAfter.claimNft).to.eql({[AccountUser2.address]: true}, 'Wrong claimNft');
     });
@@ -957,8 +956,8 @@ describe("Market contract reveal by soldCount", async function() {
         let marketParams  = await getMarketParams();
         expect(marketParams.state).to.be.equal(3, 'Wrong state');
         expect(marketParams.startIndex).to.be.not.null;
-        expect(marketParams.mintCount).to.be.equal(0, 'Wrong mintCount');
-        expect(marketParams.claimNft).to.eql({}, 'Wrong claimNft');
+        expect(marketParams.mintCount).to.be.equal(3, 'Wrong mintCount');
+        expect(marketParams.claimNft).to.eql({[AccountUser2.address]: true}, 'Wrong claimNft');
 
 
         await AccountUser3.runTarget({
@@ -970,8 +969,7 @@ describe("Market contract reveal by soldCount", async function() {
         });
 
         let marketParamsAfter  = await getMarketParams();
-
-        expect(marketParamsAfter.mintCount).to.be.equal(25, 'Wrong soldCount');
+        expect(marketParamsAfter.mintCount).to.be.equal(28, 'Wrong soldCount');
         expect(marketParamsAfter.claimNft).to.eql({[AccountUser2.address]: true, [AccountUser3.address]: true}, 'Wrong claimNft');
     });
 
@@ -980,8 +978,7 @@ describe("Market contract reveal by soldCount", async function() {
         expect(marketParams.state).to.be.equal(3, 'Wrong state');
         expect(marketParams.startIndex).to.be.not.null;
         expect(marketParams.mintCount).to.be.equal(28, 'Wrong mintCount');
-        expect(marketParams.claimNft).to.eql({}, 'Wrong claimNft');
-
+        expect(marketParams.claimNft).to.eql({[AccountUser2.address]: true, [AccountUser3.address]: true}, 'Wrong claimNft');
 
         let keys = Object.keys(marketParams.soldNfts);
 
@@ -1001,7 +998,7 @@ describe("Market contract reveal by soldCount", async function() {
 
         expect(marketParamsAfter.mintCount).to.be.equal(28, 'Wrong soldCount');
         expect(marketParamsAfter.claimNft).to.eql({
-            [AccountUser.address]: true,
+            [AccountUser3.address]: true,
             [AccountUser2.address]: true
         }, 'Wrong claimNft');
 

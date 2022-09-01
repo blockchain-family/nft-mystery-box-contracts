@@ -33,7 +33,7 @@ contract NewMarket is
     address public tokenRoot;
     address public tokenWallet;
 
-    enum SaleStatus {   
+    enum SaleStatus {
             Upcoming,
             Active,
             SoldOut,
@@ -45,6 +45,13 @@ contract NewMarket is
     mapping (address => uint16[]) public soldNfts;
     mapping (address => bool) public claimNft;
 
+    uint16 public soldCountDiscount;
+    uint16 public soldCountAirdrop;
+    uint128 public discountPrice;
+
+    mapping (address => uint16) public airDrop;
+    mapping (address => uint16) public whiteList;
+
     constructor() public {revert();}
 
     function nftData() external view returns (mapping (uint32 => NftInfo)) {
@@ -52,20 +59,24 @@ contract NewMarket is
     }
 
     function state() public view returns(SaleStatus) {
+        uint16 commonSoldCount =  commonSoldCount();
         if (now < startDate) {
             return SaleStatus.Upcoming;
         } else if (startIndex.hasValue()) {
             return  SaleStatus.Completed;
-        } else if (now >= revealDate || soldCount == totalCount) {
+        } else if (now >= revealDate || commonSoldCount == totalCount) {
             return SaleStatus.SoldOut;
         } else {
             return SaleStatus.Active;
         }
     }
 
+    function commonSoldCount() public view returns (uint16) {
+        return (soldCount + soldCountDiscount + soldCountAirdrop);
+    }
+
     function onCodeUpgrade(TvmCell data) private {
         tvm.resetStorage();
-
         (
             owner_,
             managers_,
@@ -85,7 +96,13 @@ contract NewMarket is
             nftData_,
             priceRule,
             soldNfts,
-            claimNft
+            claimNft,
+            soldCountDiscount,
+            airDrop,
+            whiteList,
+            soldCountAirdrop,
+            discountPrice
+
         ) = abi.decode(data, (
             address,
             address[],
@@ -105,14 +122,15 @@ contract NewMarket is
             mapping (uint32 => NftInfo),
             mapping (uint16 => uint128),
             mapping (address => uint16[]),
-            mapping (address => bool)
+            mapping (address => bool),
+            uint16,
+            mapping (address => uint16),
+            mapping (address => uint16),
+            uint16,
+            uint128
         ));
-
-        
-
         owner_.transfer({ value: 0, flag: 128 });
     }
-
 
     function bla() public returns (string) {
         return "blablabla";

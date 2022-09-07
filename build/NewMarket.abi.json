@@ -15,7 +15,7 @@
 			"inputs": [
 			],
 			"outputs": [
-				{"components":[{"name":"name","type":"string"},{"name":"description","type":"string"},{"name":"previewUrl","type":"string"},{"name":"ipfsUrl","type":"string"},{"name":"param1","type":"string"},{"name":"param2","type":"string"}],"name":"value0","type":"map(uint32,tuple)"}
+				{"components":[{"name":"name","type":"string"},{"name":"description","type":"string"},{"name":"previewUrl","type":"string"},{"name":"ipfsUrl","type":"string"},{"components":[{"name":"trait_type","type":"string"},{"name":"value","type":"string"}],"name":"attributes","type":"tuple[]"},{"name":"externalUrl","type":"string"}],"name":"value0","type":"map(uint32,tuple)"}
 			]
 		},
 		{
@@ -236,7 +236,7 @@
 		{"name":"startIndex","type":"optional(uint32)"},
 		{"name":"tokenRoot","type":"address"},
 		{"name":"tokenWallet","type":"address"},
-		{"components":[{"name":"name","type":"string"},{"name":"description","type":"string"},{"name":"previewUrl","type":"string"},{"name":"ipfsUrl","type":"string"},{"name":"param1","type":"string"},{"name":"param2","type":"string"}],"name":"nftData_","type":"map(uint32,tuple)"},
+		{"components":[{"name":"name","type":"string"},{"name":"description","type":"string"},{"name":"previewUrl","type":"string"},{"name":"ipfsUrl","type":"string"},{"components":[{"name":"trait_type","type":"string"},{"name":"value","type":"string"}],"name":"attributes","type":"tuple[]"},{"name":"externalUrl","type":"string"}],"name":"nftData_","type":"map(uint32,tuple)"},
 		{"name":"priceRule","type":"map(uint16,uint128)"},
 		{"name":"soldNfts","type":"map(address,uint16[])"},
 		{"name":"claimNft","type":"map(address,bool)"},

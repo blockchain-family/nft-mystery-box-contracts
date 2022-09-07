@@ -41,19 +41,27 @@ contract Collection is TIP4_3Collection, TIP4_2Collection, MultiOwner, ICollecti
 		_remainOnNft = remainOnNft;
 	}
 
+	function _makeStrOf(Attributes[] attributes) private pure returns (string)  {
+		string strFromAttributes = "[";
+		bool first = true;
+		for (Attributes attr: attributes) {
+			if (first) {
+				strFromAttributes += ",";
+			}
+			strFromAttributes += "{ \"trait_type\": " + attr.trait_type + " ,\"value\": " + attr.value + "}";
+		}
+		return strFromAttributes + "]";
+	}
+
 	function mintNft(NftInfo _nftInfo, address _owner, uint32 _nftId) public override virtual anyOwner {
-		require(
-			msg.value > _remainOnNft + Gas.MINT_VALUE,
-			109
-		);
-		string json = "{\"type\": \"Broxus NFT\", \"id\":" + format("{}", _nftId) + 
+		require(msg.value > _remainOnNft + Gas.MINT_VALUE,109);
+		string json = "{\"type\": \"Basic NFT\", \"id\":" + format("{}", _nftId) +
 						",\"name\":" + _nftInfo.name + 
 						", \"description\":" + _nftInfo.description + 
 						",\"preview\": { \"source\":" + _nftInfo.previewUrl + 
 						", \"mimetype\": \"image/png\" }, \"files\": [ { \"source\":" + _nftInfo.ipfsUrl + 
-						", \"mimetype\": \"image/png\" }],\"params\": [\"p1\":" + _nftInfo.param1 + 
-						",\"p2\":" + _nftInfo.param2 + 
-						"],\"external_url\": \"https://everscale.network\"}";
+						", \"mimetype\" : \"image/png\" }], \"attributes\":" + _makeStrOf(_nftInfo.attributes) +
+						",\"external_url\":" + _nftInfo.externalUrl + "}";
 
 
 		tvm.rawReserve(Gas.INITIAL_BALANCE, 0);

@@ -26,7 +26,7 @@ async function main() {
         _randomNonce: getRandomNonce(),
       },
       keyPair,
-    }, locklift.utils.convertCrystal(10, 'nano'));
+    }, locklift.utils.convertCrystal(30, 'nano'));
   
     Account.setKeyPair(keyPair);
 
@@ -34,7 +34,7 @@ async function main() {
     console.log('Account deployed', Account.address);
 
     // add config.json params
-    const jsonData = JSON.parse(fs.readFileSync("config.json", 'utf8'));
+    const jsonData = JSON.parse(fs.readFileSync("config-deploy.json", 'utf8'));
 
     // deploy collection
     const Collection = await locklift.factory.getContract("Collection");
@@ -63,8 +63,8 @@ async function main() {
     console.log('Collection deployed', Collection.address);
 
     // add airdrop.json and whiteList.json
-    const airDrop = JSON.parse(fs.readFileSync("airdrop.json", 'utf8'));
-    const whiteList = JSON.parse(fs.readFileSync("whitelist.json", 'utf8'));
+    const airDrop = JSON.parse(fs.readFileSync("airdrop-deploy.json", 'utf8'));
+    const whiteList = JSON.parse(fs.readFileSync("whitelist-deploy.json", 'utf8'));
 
     // deploy market
     const Market = await locklift.factory.getContract("Market");
@@ -139,16 +139,20 @@ async function main() {
     console.log('Add manager to Market: ' + Account.address);
 
     // load nft info data
-    const nftInfoJson = JSON.parse(fs.readFileSync("nftInfoData.json", 'utf8'));
+    const nftInfoJson = JSON.parse(fs.readFileSync("nftInfoData-deploy.json", 'utf8'));
 
     const INCREMENT = 20;
-    for (let i = 0; i < nftInfoJson.length; i += INCREMENT) {
-
+    for (let i = 0; i < 1500; i += INCREMENT) {
         let elements = {};
-        nftInfoJson.slice(i, i + INCREMENT).forEach((nftData,id) => {
-            elements["" + (id + i)] = nftData;
-        });
 
+        for (let j = 0; j < INCREMENT; j++) {
+            if (i + j < 1500) {
+                let element = Object.assign({}, nftInfoJson);
+                element.name = element.name + ' ' + (i + j + 1);
+                elements["" + (i + j + 1)] = element;
+            }
+        }
+        // console.log(JSON.stringify(elements, null, 2));
         await Account.runTarget({
             contract: Market,
             method: 'loadNftData',
@@ -158,8 +162,27 @@ async function main() {
             keyPair,
             value: locklift.utils.convertCrystal(1, 'nano')
         })
-    
     }
+
+    // const INCREMENT = 20;
+    // for (let i = 0; i < nftInfoJson.length; i += INCREMENT) {
+    //
+    //     let elements = {};
+    //     nftInfoJson.slice(i, i + INCREMENT).forEach((nftData,id) => {
+    //         elements["" + (id + i)] = nftData;
+    //     });
+    //
+    //     await Account.runTarget({
+    //         contract: Market,
+    //         method: 'loadNftData',
+    //         params: {
+    //             _nftData: elements
+    //         },
+    //         keyPair,
+    //         value: locklift.utils.convertCrystal(1, 'nano')
+    //     })
+    //
+    // }
 
     // transfer ownership
     const response2 = await prompts([
@@ -195,7 +218,6 @@ async function main() {
     console.log('Transfer ownership Market to: ' + response2.newOwner);
 
 }
-
 
 main()
     .then(() => process.exit(0))

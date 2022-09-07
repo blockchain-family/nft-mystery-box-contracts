@@ -136,6 +136,8 @@ contract Market is
             require(key <= totalCount, Errors.WRONG_LOAD_DATA);
             nftData_[key] = value;         
         }
+        _reserve();
+        msg.sender.transfer({ value: 0, flag: MsgFlag.ALL_NOT_RESERVED + MsgFlag.IGNORE_ERRORS, bounce: false });
     }
 
     function onTokenWallet(address _tokenWallet) external {

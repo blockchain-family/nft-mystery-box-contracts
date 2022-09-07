@@ -20,7 +20,7 @@
 		{
 			"name": "mintNft",
 			"inputs": [
-				{"components":[{"name":"name","type":"string"},{"name":"description","type":"string"},{"name":"previewUrl","type":"string"},{"name":"ipfsUrl","type":"string"},{"name":"param1","type":"string"},{"name":"param2","type":"string"}],"name":"_nftInfo","type":"tuple"},
+				{"components":[{"name":"name","type":"string"},{"name":"description","type":"string"},{"name":"previewUrl","type":"string"},{"name":"ipfsUrl","type":"string"},{"components":[{"name":"trait_type","type":"string"},{"name":"value","type":"string"}],"name":"attributes","type":"tuple[]"},{"name":"externalUrl","type":"string"}],"name":"_nftInfo","type":"tuple"},
 				{"name":"_owner","type":"address"},
 				{"name":"_nftId","type":"uint32"}
 			],

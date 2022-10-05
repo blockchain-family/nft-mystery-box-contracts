@@ -1,0 +1,535 @@
+.version sol 0.57.1
+
+.macro constructor
+DROP
+GETGLOB 2
+ISNULL
+IFREF {
+	CALL $c4_to_c7_with_init_storage$
+}
+GETGLOB 6
+THROWIF 51
+LDU 8
+OVER
+GTINT 5
+THROWIF 73
+ENDS
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 20
+SETGLOB 11
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 22
+PUSHINT 839183401
+GETGLOB 10
+NEWC
+STONE
+ROTREV
+PUSHINT 32
+DICTUSETB
+DUP
+SETGLOB 10
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 23
+PUSHINT 553934018
+PUSHINT 1061950486
+XOR
+SWAP
+NEWC
+STONE
+ROTREV
+PUSHINT 32
+DICTUSETB
+SETGLOB 10
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 0
+CALLREF {
+	CALL $c7_to_c4$
+}
+THROW 0
+
+.macro getLicenseURI
+DROP
+GETGLOB 6
+THROWIFNOT 76
+GETGLOB 2
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 29
+ENDS
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 0
+CALLREF {
+	CALL $getLicenseURI_internal_macro$
+}
+OVER
+PUSHCONT {
+	PUSH S3
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHSLICE x00000000000000000000000028411730a_
+	STSLICER
+	STREF
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+PUSHCONT {
+	DROP
+}
+IFELSE
+IFREF {
+	CALL $upd_only_time_in_c4$
+}
+THROW 0
+
+.globl	getLicenseURI_internal
+.type	getLicenseURI_internal, @function
+CALL $getLicenseURI_internal_macro$
+
+.macro getLicenseURI_internal_macro
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 30
+TUPLE 0
+NEWC
+PUSHREF {
+	.blob x61723a2f2f5f44396b4e3157724e576243713535425341475262544234625333763851415054596d42546853625833412f
+}
+CTOS
+CALLREF {
+	CALL $storeStringInBuilders_macro$
+}
+GETGLOB 11
+PUSHINT 0
+BLKPUSH 2, 0
+CALLREF {
+	CALL $convertIntToDecStr_macro$
+}
+CALLREF {
+	CALL $assembleList_macro$
+}
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 0
+
+.macro getLicenseName
+DROP
+GETGLOB 6
+THROWIFNOT 76
+GETGLOB 2
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 33
+ENDS
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 0
+CALLREF {
+	CALL $getLicenseName_internal_macro$
+}
+OVER
+PUSHCONT {
+	PUSH S3
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHSLICE x0000000000000000000000002fd30505a_
+	STSLICER
+	STREF
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+PUSHCONT {
+	DROP
+}
+IFELSE
+IFREF {
+	CALL $upd_only_time_in_c4$
+}
+THROW 0
+
+.globl	getLicenseName_internal
+.type	getLicenseName_internal, @function
+CALL $getLicenseName_internal_macro$
+
+.macro getLicenseName_internal_macro
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 34
+GETGLOB 11
+CALLREF {
+	CALL $_getLicenseVersionKeyByValue_internal_macro$
+}
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 0
+
+.globl	_getLicenseVersionKeyByValue_internal
+.type	_getLicenseVersionKeyByValue_internal, @function
+CALL $_getLicenseVersionKeyByValue_internal_macro$
+
+.macro _getLicenseVersionKeyByValue_internal_macro
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 38
+DUP
+LESSINT 7
+THROWIFNOT 100
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 39
+DUP
+PUSHCONT {
+	DROP
+	PUSHREF {
+		.blob x4342455f434330
+	}
+}
+IFNOTJMP
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 40
+DUP
+EQINT 1
+PUSHCONT {
+	DROP
+	PUSHREF {
+		.blob x4342455f454352
+	}
+}
+IFJMP
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 41
+DUP
+EQINT 2
+PUSHCONT {
+	DROP
+	PUSHREF {
+		.blob x4342455f4e454352
+	}
+}
+IFJMP
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 42
+DUP
+EQINT 3
+PUSHCONT {
+	DROP
+	PUSHREF {
+		.blob x4342455f4e4543525f4853
+	}
+}
+IFJMP
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 43
+EQINT 4
+PUSHCONT {
+	PUSHREF {
+		.blob x4342455f5052
+	}
+}
+PUSHCONT {
+	PUSHREF {
+		.blob x4342455f50525f4853
+	}
+}
+IFELSE
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 0
+
+.macro supportsInterface
+DROP
+GETGLOB 6
+THROWIFNOT 76
+GETGLOB 2
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+.loc ../contracts/modules/TIP6/TIP6.sol, 13
+LDU 32
+GETGLOB 4
+ROT
+SETINDEXQ 5
+SETGLOB 4
+LDU 32
+ENDS
+.loc ../contracts/modules/TIP6/TIP6.sol, 0
+CALLREF {
+	CALL $supportsInterface_internal_macro$
+}
+OVER
+PUSHCONT {
+	PUSH S3
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHSLICE x0000000000000000000000002c813b0a6_
+	STSLICER
+	STI 1
+	ENDC
+	PUSHINT 0
+}
+PUSHCONT {
+	GETGLOB 4
+	DUP
+	INDEX 3
+	OVER
+	THIRD
+	GETGLOB 9
+	ROLL 3
+	SECOND
+	NEWC
+	PUSHINT 2
+	STZEROES
+	STI 1
+	PUSHINT 3
+	STZEROES
+	STSLICE
+	SWAP
+	STGRAMS
+	STDICT
+	PUSHINT 106
+	STZEROES
+	GETGLOB 4
+	INDEX 5
+	STUR 32
+	STI 1
+	ENDC
+	GETGLOB 4
+	INDEX 4
+}
+IFELSE
+SENDRAWMSG
+IFREF {
+	CALL $upd_only_time_in_c4$
+}
+THROW 0
+
+.macro supportsInterface_internal_macro
+.loc ../contracts/modules/TIP6/TIP6.sol, 14
+GETGLOB 4
+PUSHINT 0
+SETINDEXQ 2
+PUSHINT 64
+SETINDEXQ 4
+FALSE
+SETINDEXQ 1
+SETGLOB 4
+GETGLOB 10
+PUSHINT 32
+DICTUGET
+PUSHCONT {
+	PLDI 1
+}
+PUSHCONT {
+	PUSHINT 0
+}
+IFELSE
+.loc ../contracts/modules/TIP6/TIP6.sol, 0
+
+.macro c4_to_c7
+PUSHROOT
+CTOS
+LDU 256 ; pubkey c4
+LDU 64 ; pubkey timestamp c4
+LDU 1 ; ctor flag
+NIP
+LDDICT
+LDU 8
+OVER
+GTINT 5
+THROWIF 73
+ENDS
+SETGLOB 11
+SETGLOB 10
+SETGLOB 3
+SETGLOB 2
+
+.macro c4_to_c7_with_init_storage
+PUSHROOT
+CTOS
+SBITS
+GTINT 1
+PUSHCONT {
+	PUSHINT 0
+	PUSHROOT
+	CTOS
+	PLDDICT ; D
+	NEWDICT
+	PUSHINT 0
+	SETGLOB 11
+	SETGLOB 10
+	PUSHINT 64
+	DICTUGET
+	THROWIFNOT 61
+	PLDU 256
+	SETGLOB 2
+	PUSHINT 0 ; timestamp
+	SETGLOB 3
+}
+IFREFELSE {
+	CALL $c4_to_c7$
+}
+
+.macro c7_to_c4
+GETGLOB 11
+GETGLOB 10
+GETGLOB 3
+GETGLOB 2
+NEWC
+STU 256
+STU 64
+STONE
+STDICT
+STU 8
+ENDC
+POPROOT
+
+.macro upd_only_time_in_c4
+PUSHROOT
+CTOS
+LDU 256
+LDU 64
+NIP
+GETGLOB 3
+ROT
+NEWC
+STU 256
+STU 64
+STSLICE
+ENDC
+POPROOT
+
+.internal-alias :main_internal, 0
+.internal :main_internal
+PUSHROOT
+CTOS
+SBITS
+NEQINT 1
+SETGLOB 6
+PUSH S2
+CTOS
+LDU 4 ; bounced tail
+LDMSGADDR ; bounced src tail
+DROP
+SETGLOB 9
+MODPOW2 1
+GETGLOB 4
+TRUE
+SETINDEXQ 1
+PUSHINT 10000000
+SETINDEXQ 2
+NULL
+SETINDEXQ 3
+PUSHINT 0
+SETINDEXQ 4
+SETGLOB 4
+IFRET
+OVER
+SEMPTY ; isEmpty
+IFJMPREF {
+	GETGLOB 6
+	THROWIFNOT 76
+}
+OVER
+LDUQ 32  ; [funcId] body' ok
+THROWIFNOT 60
+OVER
+IFNOTJMPREF {
+	GETGLOB 6
+	THROWIFNOT 76
+}
+SWAP
+CALLREF {
+	CALL $public_function_selector$
+}
+THROW 60
+
+.internal-alias :main_external, -1
+.internal :main_external
+PUSHROOT
+CTOS
+SBITS
+NEQINT 1
+SETGLOB 6
+OVER
+CALLREF {
+	CALL $c4_to_c7_with_init_storage$
+}
+LDU 1 ; haveSign msgSlice
+SWAP
+PUSHCONT {
+	PUSHINT 512
+	LDSLICEX ; signatureSlice msgSlice
+	DUP
+	HASHSU ; signatureSlice msgSlice hashMsgSlice
+	ROT
+	GETGLOB 2
+	CHKSIGNU ; msgSlice isSigned
+	THROWIFNOT 40
+}
+IF
+LDU 64 ; timestamp msgSlice
+SWAP
+CALL $replay_protection_macro$
+LDU 32 ; funcId body
+SWAP
+CALLREF {
+	CALL $public_function_selector$
+}
+THROW 60
+
+.macro licenseVersion
+DROP
+ENDS
+CALLREF {
+	CALL $c4_to_c7$
+}
+GETGLOB 11
+OVER
+PUSHCONT {
+	PUSHSLICE xc0000000000000000000000000a0f75959
+	NEWC
+	STSLICE
+	STU 8
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+THROW 0
+
+.macro public_function_selector
+DUP
+PUSHINT 1061950486
+LEQ
+IFJMPREF {
+	DUP
+	PUSHINT 553081177
+	EQUAL
+	IFJMPREF {
+		CALL $licenseVersion$
+	}
+	DUP
+	PUSHINT 553934018
+	EQUAL
+	IFJMPREF {
+		CALL $getLicenseURI$
+	}
+	DUP
+	PUSHINT 839183401
+	EQUAL
+	IFJMPREF {
+		CALL $supportsInterface$
+	}
+	DUP
+	PUSHINT 1061950486
+	EQUAL
+	IFJMPREF {
+		CALL $getLicenseName$
+	}
+}
+DUP
+PUSHINT 1851494252
+EQUAL
+IFJMPREF {
+	CALL $constructor$
+}
+

@@ -30,7 +30,7 @@ async function main() {
   
     Account.setKeyPair(keyPair);
 
-    migration.store(Account, 'Account');
+    migration.store(Account, 'AccountDeployed');
     console.log('Account deployed', Account.address);
 
     // add config.json params
@@ -142,14 +142,14 @@ async function main() {
     const nftInfoJson = JSON.parse(fs.readFileSync("nftInfoData-deploy.json", 'utf8'));
 
     const INCREMENT = 20;
-    for (let i = 0; i < 1500; i += INCREMENT) {
+    for (let i = 0; i < 60; i += INCREMENT) {
         let elements = {};
 
         for (let j = 0; j < INCREMENT; j++) {
-            if (i + j < 1500) {
+            if (i + j < 60) {
                 let element = Object.assign({}, nftInfoJson);
-                element.name = element.name + ' ' + (i + j + 1);
-                elements["" + (i + j + 1)] = element;
+                element.name = element.name + ' ' + (i + j);
+                elements["" + (i + j)] = element;
             }
         }
         // console.log(JSON.stringify(elements, null, 2));

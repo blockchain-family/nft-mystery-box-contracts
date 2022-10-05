@@ -127,13 +127,13 @@ CALLREF {
 }
 .loc ../contracts/modules/access/MultiOwner.sol, 18
 SETGLOB 20
-.loc ../contracts/Collection.sol, 39
-ACCEPT
 .loc ../contracts/Collection.sol, 40
+ACCEPT
+.loc ../contracts/Collection.sol, 41
 PUSHINT 1000000000
 PUSHINT 0
 RAWRESERVE
-.loc ../contracts/Collection.sol, 41
+.loc ../contracts/Collection.sol, 42
 SETGLOB 22
 .loc ../contracts/Collection.sol, 0
 CALLREF {
@@ -146,14 +146,17 @@ THROW 0
 CALL $_makeStrOf_internal_macro$
 
 .macro _makeStrOf_internal_macro
-.loc ../contracts/Collection.sol, 45
+.loc ../contracts/Collection.sol, 46
 PUSHREF {
 	.blob x5b
 }
-.loc ../contracts/Collection.sol, 46
-TRUE
 .loc ../contracts/Collection.sol, 47
-ROT
+OVER
+FIRST
+.loc ../contracts/Collection.sol, 48
+PUSHINT 1
+.loc ../contracts/Collection.sol, 49
+ROLL 3
 SECOND
 PUSHINT 0
 NULL
@@ -174,24 +177,9 @@ PUSHCONT {
 	NOT
 }
 PUSHCONT {
-	.loc ../contracts/Collection.sol, 48
-	PUSH S3
-	PUSHCONT {
-		.loc ../contracts/Collection.sol, 49
-		PUSH S4
-		PUSHREF {
-			.blob x2c
-		}
-		CALLREF {
-			CALL $concatenateStrings_macro$
-		}
-		POP S5
-		.loc ../contracts/Collection.sol, 0
-	}
-	IF
-	.loc ../contracts/Collection.sol, 51
+	.loc ../contracts/Collection.sol, 50
 	PUSHREF {
-		.blob x7b202274726169745f74797065223a20
+		.blob x7b202274726169745f74797065223a2022
 	}
 	OVER
 	FIRST
@@ -199,7 +187,7 @@ PUSHCONT {
 		CALL $concatenateStrings_macro$
 	}
 	PUSHREF {
-		.blob x202c2276616c7565223a20
+		.blob x22202c2276616c7565223a2022
 	}
 	CALLREF {
 		CALL $concatenateStrings_macro$
@@ -210,24 +198,44 @@ PUSHCONT {
 		CALL $concatenateStrings_macro$
 	}
 	PUSHREF {
-		.blob x7d
+		.blob x227d
 	}
 	CALLREF {
 		CALL $concatenateStrings_macro$
 	}
-	PUXC S5, S-1
+	PUXC S6, S-1
 	CALLREF {
 		CALL $concatenateStrings_macro$
 	}
-	POP S5
+	POP S6
+	.loc ../contracts/Collection.sol, 53
+	PUSH2 S3, S4
+	LESS
+	PUSHCONT {
+		.loc ../contracts/Collection.sol, 54
+		PUSH S5
+		PUSHREF {
+			.blob x2c
+		}
+		CALLREF {
+			CALL $concatenateStrings_macro$
+		}
+		POP S6
+		.loc ../contracts/Collection.sol, 0
+	}
+	IF
+	.loc ../contracts/Collection.sol, 56
+	PUSH S3
+	INC
+	POP S4
 	.loc ../contracts/Collection.sol, 0
 	OVER
 	INC
 	POP S2
 }
 WHILE
-BLKDROP 4
-.loc ../contracts/Collection.sol, 53
+BLKDROP 5
+.loc ../contracts/Collection.sol, 58
 PUSHREF {
 	.blob x5d
 }
@@ -245,7 +253,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Collection.sol, 56
+.loc ../contracts/Collection.sol, 61
 LDREF
 LDREF
 LDREF
@@ -285,23 +293,23 @@ CALLREF {
 	CALL $isAnyOwner_internal_macro$
 }
 THROWIFNOT 1101
-.loc ../contracts/Collection.sol, 57
+.loc ../contracts/Collection.sol, 62
 DEPTH
 ADDCONST -2
 PICK
 GETGLOB 22
-PUSHINT 2000000000
+PUSHINT 1000000000
 ADD
 UFITS 128
 GREATER
 THROWIFNOT 109
-.loc ../contracts/Collection.sol, 58
+.loc ../contracts/Collection.sol, 63
 PUSHREF {
 	.blob x7b2274797065223a20224261736963204e4654222c20226964223a
 }
 TUPLE 0
 NEWC
-ROLL 3
+PUSH S3
 PUSHINT 0
 BLKPUSH 2, 0
 CALLREF {
@@ -314,56 +322,56 @@ CALLREF {
 	CALL $concatenateStrings_macro$
 }
 PUSHREF {
-	.blob x2c226e616d65223a
+	.blob x2c226e616d65223a2022
 }
 CALLREF {
 	CALL $concatenateStrings_macro$
 }
-PUSH S2
+PUSH S3
 FIRST
 CALLREF {
 	CALL $concatenateStrings_macro$
 }
 PUSHREF {
-	.blob x2c20226465736372697074696f6e223a
+	.blob x22202c20226465736372697074696f6e223a2022
 }
 CALLREF {
 	CALL $concatenateStrings_macro$
 }
-PUSH S2
+PUSH S3
 SECOND
 CALLREF {
 	CALL $concatenateStrings_macro$
 }
 PUSHREF {
-	.blob x2c2270726576696577223a207b2022736f75726365223a
+	.blob x22202c2270726576696577223a207b2022736f75726365223a2022
 }
 CALLREF {
 	CALL $concatenateStrings_macro$
 }
-PUSH S2
+PUSH S3
 THIRD
 CALLREF {
 	CALL $concatenateStrings_macro$
 }
 PUSHREF {
-	.blob x2c20226d696d6574797065223a2022696d6167652f706e6722207d2c202266696c6573223a205b207b2022736f75726365223a
+	.blob x22202c20226d696d6574797065223a2022696d6167652f706e6722207d2c202266696c6573223a205b207b2022736f75726365223a2022
 }
 CALLREF {
 	CALL $concatenateStrings_macro$
 }
-PUSH S2
+PUSH S3
 INDEX 3
 CALLREF {
 	CALL $concatenateStrings_macro$
 }
 PUSHREF {
-	.blob x2c20226d696d657479706522203a2022696d6167652f706e6722207d5d2c202261747472696275746573223a
+	.blob x22202c20226d696d657479706522203a2022696d6167652f706e6722207d5d2c202261747472696275746573223a
 }
 CALLREF {
 	CALL $concatenateStrings_macro$
 }
-PUSH S2
+PUSH S3
 INDEX 4
 CALLREF {
 	CALL $_makeStrOf_internal_macro$
@@ -372,27 +380,28 @@ CALLREF {
 	CALL $concatenateStrings_macro$
 }
 PUSHREF {
-	.blob x2c2265787465726e616c5f75726c223a
+	.blob x2c2265787465726e616c5f75726c223a2022
 }
 CALLREF {
 	CALL $concatenateStrings_macro$
 }
-ROT
+ROLL 3
 INDEX 5
 CALLREF {
 	CALL $concatenateStrings_macro$
 }
 PUSHREF {
-	.blob x7d
+	.blob x227d
 }
 CALLREF {
 	CALL $concatenateStrings_macro$
 }
-.loc ../contracts/Collection.sol, 67
+.loc ../contracts/Collection.sol, 73
 PUSHINT 1000000000
 PUSHINT 0
 RAWRESERVE
-.loc ../contracts/Collection.sol, 68
+.loc ../contracts/Collection.sol, 74
+SWAP
 PUSHINT 0
 PUSHINT 128
 CALLREF {
@@ -409,7 +418,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Collection.sol, 71
+.loc ../contracts/Collection.sol, 77
 LDU 32
 GETGLOB 4
 ROT
@@ -477,7 +486,7 @@ IFREF {
 THROW 0
 
 .macro totalMinted_internal_macro
-.loc ../contracts/Collection.sol, 72
+.loc ../contracts/Collection.sol, 78
 GETGLOB 4
 PUSHINT 0
 SETINDEXQ 2
@@ -494,28 +503,26 @@ GETGLOB 23
 CALL $_mintNft_internal_macro$
 
 .macro _mintNft_internal_macro
-.loc ../contracts/Collection.sol, 77
+.loc ../contracts/Collection.sol, 83
 GETGLOB 23
-DUP
-.loc ../contracts/Collection.sol, 78
 INC
 SETGLOB 23
-.loc ../contracts/Collection.sol, 79
+.loc ../contracts/Collection.sol, 84
 GETGLOB 12
 INC
 UFITS 128
 SETGLOB 12
-.loc ../contracts/Collection.sol, 81
+.loc ../contracts/Collection.sol, 86
 MYADDR
 CALLREF {
 	CALL $_buildNftCode_internal_macro$
 }
-.loc ../contracts/Collection.sol, 82
-OVER
+.loc ../contracts/Collection.sol, 87
+PUSH S3
 CALLREF {
 	CALL $_buildNftState_internal_macro$
 }
-.loc ../contracts/Collection.sol, 83
+.loc ../contracts/Collection.sol, 88
 GETGLOB 13
 GETGLOB 16
 GETGLOB 15
@@ -532,7 +539,7 @@ STU 256
 ENDC
 CTOS
 ROLLREV 8
-ROLL 11
+ROLL 10
 PUSH S9
 NEWC
 STSLICECONST x62_
@@ -581,9 +588,9 @@ STREF
 STBREFR
 STBREFR
 ENDC
-ROLL 3
+ROT
 SENDRAWMSG
-.loc ../contracts/Collection.sol, 93
+.loc ../contracts/Collection.sol, 98
 GETGLOB 9
 DUP
 BLKSWAP 3, 2
@@ -623,7 +630,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Collection.sol, 96
+.loc ../contracts/Collection.sol, 101
 OVER
 PUSHCONT {
 	LDREF
@@ -666,7 +673,7 @@ DEPTH
 ADDCONST -2
 PICK
 THROWIFNOT 101
-.loc ../contracts/Collection.sol, 97
+.loc ../contracts/Collection.sol, 102
 SETGLOB 22
 .loc ../contracts/Collection.sol, 0
 
@@ -675,7 +682,7 @@ SETGLOB 22
 CALL $_buildNftState_internal_macro$
 
 .macro _buildNftState_internal_macro
-.loc ../contracts/Collection.sol, 107
+.loc ../contracts/Collection.sol, 112
 PUSHINT 0
 NEWC
 STU 256
@@ -711,7 +718,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Collection.sol, 110
+.loc ../contracts/Collection.sol, 115
 OVER
 PUSHCONT {
 	LDREF
@@ -761,11 +768,11 @@ THROW 0
 CALL $resolveIndexCodeHash_internal_macro$
 
 .macro resolveIndexCodeHash_internal_macro
-.loc ../contracts/Collection.sol, 111
+.loc ../contracts/Collection.sol, 116
 CALLREF {
 	CALL $_buildIndexCode_internal_macro$
 }
-.loc ../contracts/Collection.sol, 112
+.loc ../contracts/Collection.sol, 117
 HASHCU
 .loc ../contracts/Collection.sol, 0
 

@@ -11,4 +11,5 @@ library Errors {
     uint8 constant ALREADY_CLAIMED              = 108;
     uint8 constant LOW_GAS                      = 109;
     uint8 constant NOT_TOKEN_ROOT               = 110;
+    uint8 constant NOT_WEVER_ROOT               = 111;
 }

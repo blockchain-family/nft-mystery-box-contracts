@@ -19,8 +19,10 @@ import "@broxus/credit-processor/contracts/libraries/EventDataDecoder.sol";
 import "tip3/contracts/interfaces/ITokenWallet.sol";
 import "tip3/contracts/interfaces/ITokenRoot.sol";
 import "tip3/contracts/interfaces/IAcceptTokensTransferCallback.sol";
+import "./Addresses-prod.sol";
 
-contract Market is 
+contract Market is
+    Addresses,
     MultiOwner, 
     INftInfoStructure, 
     ICreditEventDataStructure, 
@@ -233,6 +235,29 @@ contract Market is
         return (countDiscount.hasValue())  ?  countDiscount.get() : 0;
     }
 
+    function _refund(uint128 amount, address user, address remainingGasTo) private {
+        TvmCell emptyPayload;
+        if (tokenRoot == WEVER_ROOT) {
+            ITokenWallet(msg.sender).transfer{ value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false }(
+                amount,
+                WEVER_VAULT,
+                uint128(0),
+                user,
+                true,
+                emptyPayload
+            );
+        } else {
+            ITokenWallet(msg.sender).transfer{ value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false }(
+                amount,
+                user,
+                Gas.DEPLOY_EMPTY_WALLET_GRAMS,
+                remainingGasTo,
+                true,
+                emptyPayload
+            );
+        }
+    }
+
     function _buy(uint32 id, uint128 amount, uint16 toNftNumber, address user, address remainingGasTo) private {
         if (state() == SaleStatus.Active && msg.value >= Gas.BUY_VALUE) {
             uint16[] currUserNfts = nftsOf(user);
@@ -261,7 +286,7 @@ contract Market is
                 whiteList[user] = currCountDiscount;
             }
 
-            for (uint16 i = soldCount; i <= toNftNumber; i++) {
+            for (uint16 i = soldCount; i < toNftNumber; i++) {
                 (,uint128 price) = priceRule.prevOrEq(currSoldCount).get();
                 if (currAmount >= price && currUserNftsCount < nftPerHand && currCommonSoldCount < totalCount) {
                     currAmount -= price;
@@ -284,29 +309,17 @@ contract Market is
                 soldCountDiscount = currSoldCountDiscount;
 
                 if (currAmount > 0) {
-                TvmCell emptyPayload;
-                ITokenWallet(msg.sender).transfer{ value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false }
-                    (currAmount, user, Gas.DEPLOY_EMPTY_WALLET_GRAMS, remainingGasTo, true, emptyPayload);
+                    _refund(currAmount, user, remainingGasTo);
                 } else {
                     user.transfer({ value: 0, flag: MsgFlag.ALL_NOT_RESERVED + MsgFlag.IGNORE_ERRORS, bounce: false });
                 }
-
             } else {
-
                 IMarketCallback(user).onCancel{ value: Gas.CALLBACK_VALUE + 1, flag: MsgFlag.SENDER_PAYS_FEES, bounce: false }(id);
-                
-                TvmCell emptyPayload;
-                ITokenWallet(msg.sender).transfer{ value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false }
-                    (amount, user, Gas.DEPLOY_EMPTY_WALLET_GRAMS, remainingGasTo, true, emptyPayload);
-
+                _refund(amount, user, remainingGasTo);
             }
         } else {
-            
             IMarketCallback(user).onCancel{ value: Gas.CALLBACK_VALUE + 2, flag: MsgFlag.SENDER_PAYS_FEES, bounce: false }(id);
-            
-            TvmCell emptyPayload;
-            ITokenWallet(msg.sender).transfer{ value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false }
-                (amount, user, Gas.DEPLOY_EMPTY_WALLET_GRAMS, remainingGasTo, true, emptyPayload);
+            _refund(amount, user, remainingGasTo);
         }
     }
 
@@ -314,6 +327,25 @@ contract Market is
         _reserve();
         _data.user.transfer({ value: 0, flag: MsgFlag.ALL_NOT_RESERVED + MsgFlag.IGNORE_ERRORS, bounce: false });
     }
+
+    function onAcceptTokensBurn(
+        uint128 amount,
+        address /*walletOwner*/,
+        address /*wallet*/,
+        address user,
+        TvmCell payload
+    )  external {
+        require(msg.sender.value != 0 && msg.sender == WEVER_ROOT, Errors.NOT_WEVER_ROOT);
+        _reserve();
+
+        uint64 id = 404;
+
+        TvmSlice payloadSlice = payload.toSlice();
+        if (payloadSlice.bits() >= 64) {
+            id = payloadSlice.decode(uint64);
+        }
+        user.transfer({ value: 0, flag: MsgFlag.ALL_NOT_RESERVED + MsgFlag.IGNORE_ERRORS, bounce: false });
+   }
 
     function reveal() public onlyState(SaleStatus.SoldOut) {
         require(now >= revealDate || commonSoldCount() == totalCount, Errors.OPENING_TIME_NOT_YET);
@@ -345,7 +377,7 @@ contract Market is
         for (uint32 userNft : currUserNfts) {
             uint32 newIdNft = (userNft + startIndex.get()) % totalCount;
             mintCount++;
-            ICollection(collection).mintNft{ value: Gas.CLAIM_VALUE, flag: 0, bounce: false }(nftData_.at(userNft), user, newIdNft);
+            ICollection(collection).mintNft{ value: Gas.CLAIM_VALUE, flag: 1, bounce: false }(nftData_.at(newIdNft), user, newIdNft);
         }
 
         claimNft[user] = true;

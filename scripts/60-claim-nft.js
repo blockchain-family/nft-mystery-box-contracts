@@ -9,7 +9,7 @@ async function main() {
 
     const [keyPair] = await locklift.keys.getKeyPairs();
     const Account = await locklift.factory.getAccount("Wallet");
-    migration.load(Account, 'Account');
+    migration.load(Account, 'AccountDeployed');
 
     const Market = await locklift.factory.getContract("Market");
     migration.load(Market, 'Market');

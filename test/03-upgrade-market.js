@@ -72,7 +72,7 @@ async function getBalanceFor(wallet) {
     return balanceUser;
 };
 
-describe("Market contract reveal by date", async function() {
+describe("Market contract upgradable", async function() {
     this.timeout(10000000);
     before("Deploy contracts", async function() {
 

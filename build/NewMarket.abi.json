@@ -1,0 +1,249 @@
+{
+	"ABI version": 2,
+	"version": "2.2",
+	"header": ["pubkey", "time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "nftData",
+			"inputs": [
+			],
+			"outputs": [
+				{"components":[{"name":"name","type":"string"},{"name":"description","type":"string"},{"name":"previewUrl","type":"string"},{"name":"ipfsUrl","type":"string"},{"components":[{"name":"trait_type","type":"string"},{"name":"value","type":"string"}],"name":"attributes","type":"tuple[]"},{"name":"externalUrl","type":"string"}],"name":"value0","type":"map(uint32,tuple)"}
+			]
+		},
+		{
+			"name": "state",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"uint8"}
+			]
+		},
+		{
+			"name": "commonSoldCount",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"uint16"}
+			]
+		},
+		{
+			"name": "bla",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"string"}
+			]
+		},
+		{
+			"name": "nftPerHand",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"nftPerHand","type":"uint16"}
+			]
+		},
+		{
+			"name": "totalCount",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"totalCount","type":"uint16"}
+			]
+		},
+		{
+			"name": "soldCount",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"soldCount","type":"uint16"}
+			]
+		},
+		{
+			"name": "mintCount",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"mintCount","type":"uint16"}
+			]
+		},
+		{
+			"name": "collection",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"collection","type":"address"}
+			]
+		},
+		{
+			"name": "startDate",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"startDate","type":"uint32"}
+			]
+		},
+		{
+			"name": "revealDate",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"revealDate","type":"uint32"}
+			]
+		},
+		{
+			"name": "totalRaised",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"totalRaised","type":"uint128"}
+			]
+		},
+		{
+			"name": "totalWithdraw",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"totalWithdraw","type":"uint128"}
+			]
+		},
+		{
+			"name": "provenanceHash",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"provenanceHash","type":"string"}
+			]
+		},
+		{
+			"name": "startIndex",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"startIndex","type":"optional(uint32)"}
+			]
+		},
+		{
+			"name": "tokenRoot",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"tokenRoot","type":"address"}
+			]
+		},
+		{
+			"name": "tokenWallet",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"tokenWallet","type":"address"}
+			]
+		},
+		{
+			"name": "priceRule",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"priceRule","type":"map(uint16,uint128)"}
+			]
+		},
+		{
+			"name": "soldNfts",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"soldNfts","type":"map(address,uint16[])"}
+			]
+		},
+		{
+			"name": "claimNft",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"claimNft","type":"map(address,bool)"}
+			]
+		},
+		{
+			"name": "soldCountDiscount",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"soldCountDiscount","type":"uint16"}
+			]
+		},
+		{
+			"name": "soldCountAirdrop",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"soldCountAirdrop","type":"uint16"}
+			]
+		},
+		{
+			"name": "discountPrice",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"discountPrice","type":"uint128"}
+			]
+		},
+		{
+			"name": "airDrop",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"airDrop","type":"map(address,uint16)"}
+			]
+		},
+		{
+			"name": "whiteList",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"whiteList","type":"map(address,uint16)"}
+			]
+		}
+	],
+	"data": [
+		{"key":1,"name":"nonce_","type":"uint64"}
+	],
+	"events": [
+	],
+	"fields": [
+		{"name":"_pubkey","type":"uint256"},
+		{"name":"_timestamp","type":"uint64"},
+		{"name":"_constructorFlag","type":"bool"},
+		{"name":"managers_","type":"address[]"},
+		{"name":"owner_","type":"address"},
+		{"name":"nonce_","type":"uint64"},
+		{"name":"nftPerHand","type":"uint16"},
+		{"name":"totalCount","type":"uint16"},
+		{"name":"soldCount","type":"uint16"},
+		{"name":"mintCount","type":"uint16"},
+		{"name":"collection","type":"address"},
+		{"name":"startDate","type":"uint32"},
+		{"name":"revealDate","type":"uint32"},
+		{"name":"totalRaised","type":"uint128"},
+		{"name":"totalWithdraw","type":"uint128"},
+		{"name":"provenanceHash","type":"string"},
+		{"name":"startIndex","type":"optional(uint32)"},
+		{"name":"tokenRoot","type":"address"},
+		{"name":"tokenWallet","type":"address"},
+		{"components":[{"name":"name","type":"string"},{"name":"description","type":"string"},{"name":"previewUrl","type":"string"},{"name":"ipfsUrl","type":"string"},{"components":[{"name":"trait_type","type":"string"},{"name":"value","type":"string"}],"name":"attributes","type":"tuple[]"},{"name":"externalUrl","type":"string"}],"name":"nftData_","type":"map(uint32,tuple)"},
+		{"name":"priceRule","type":"map(uint16,uint128)"},
+		{"name":"soldNfts","type":"map(address,uint16[])"},
+		{"name":"claimNft","type":"map(address,bool)"},
+		{"name":"soldCountDiscount","type":"uint16"},
+		{"name":"soldCountAirdrop","type":"uint16"},
+		{"name":"discountPrice","type":"uint128"},
+		{"name":"airDrop","type":"map(address,uint16)"},
+		{"name":"whiteList","type":"map(address,uint16)"}
+	]
+}

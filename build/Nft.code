@@ -249,7 +249,32 @@ SETGLOB 10
 CALLREF {
 	CALL $_deployIndex_internal_macro$
 }
-.loc ../contracts/Nft.sol, 34
+.loc ../contracts/modules/TIP4_3/TIP4_3Nft.sol, 0
+PUSHINT 1
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 20
+SETGLOB 19
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 22
+PUSHINT 839183401
+GETGLOB 10
+NEWC
+STONE
+ROTREV
+PUSHINT 32
+DICTUSETB
+DUP
+SETGLOB 10
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 23
+PUSHINT 553934018
+PUSHINT 1061950486
+XOR
+SWAP
+NEWC
+STONE
+ROTREV
+PUSHINT 32
+DICTUSETB
+SETGLOB 10
+.loc ../contracts/Nft.sol, 37
 ACCEPT
 .loc ../contracts/Nft.sol, 0
 CALLREF {
@@ -262,7 +287,7 @@ THROW 0
 CALL $_beforeTransfer_internal_macro$
 
 .macro _beforeTransfer_internal_macro
-.loc ../contracts/Nft.sol, 42
+.loc ../contracts/Nft.sol, 45
 DROP
 CALLREF {
 	CALL $_destructIndex_internal_macro$
@@ -275,7 +300,7 @@ DROP
 CALL $_afterTransfer_internal_macro$
 
 .macro _afterTransfer_internal_macro
-.loc ../contracts/Nft.sol, 50
+.loc ../contracts/Nft.sol, 53
 BLKDROP 3
 CALLREF {
 	CALL $_deployIndex_internal_macro$
@@ -287,7 +312,7 @@ CALLREF {
 CALL $_beforeChangeOwner_internal_macro$
 
 .macro _beforeChangeOwner_internal_macro
-.loc ../contracts/Nft.sol, 59
+.loc ../contracts/Nft.sol, 62
 DROP
 CALLREF {
 	CALL $_destructIndex_internal_macro$
@@ -300,12 +325,197 @@ DROP2
 CALL $_afterChangeOwner_internal_macro$
 
 .macro _afterChangeOwner_internal_macro
-.loc ../contracts/Nft.sol, 68
+.loc ../contracts/Nft.sol, 71
 BLKDROP 4
 CALLREF {
 	CALL $_deployIndex_internal_macro$
 }
 .loc ../contracts/Nft.sol, 0
+
+.macro getLicenseURI
+DROP
+GETGLOB 6
+THROWIFNOT 76
+GETGLOB 2
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 29
+ENDS
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 0
+CALLREF {
+	CALL $getLicenseURI_internal_macro$
+}
+OVER
+PUSHCONT {
+	PUSH S3
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHSLICE x00000000000000000000000028411730a_
+	STSLICER
+	STREF
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+PUSHCONT {
+	DROP
+}
+IFELSE
+IFREF {
+	CALL $upd_only_time_in_c4$
+}
+THROW 0
+
+.globl	getLicenseURI_internal
+.type	getLicenseURI_internal, @function
+CALL $getLicenseURI_internal_macro$
+
+.macro getLicenseURI_internal_macro
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 30
+TUPLE 0
+NEWC
+PUSHREF {
+	.blob x61723a2f2f5f44396b4e3157724e576243713535425341475262544234625333763851415054596d42546853625833412f
+}
+CTOS
+CALLREF {
+	CALL $storeStringInBuilders_macro$
+}
+GETGLOB 19
+PUSHINT 0
+BLKPUSH 2, 0
+CALLREF {
+	CALL $convertIntToDecStr_macro$
+}
+CALLREF {
+	CALL $assembleList_macro$
+}
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 0
+
+.macro getLicenseName
+DROP
+GETGLOB 6
+THROWIFNOT 76
+GETGLOB 2
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 33
+ENDS
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 0
+CALLREF {
+	CALL $getLicenseName_internal_macro$
+}
+OVER
+PUSHCONT {
+	PUSH S3
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHSLICE x0000000000000000000000002fd30505a_
+	STSLICER
+	STREF
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+PUSHCONT {
+	DROP
+}
+IFELSE
+IFREF {
+	CALL $upd_only_time_in_c4$
+}
+THROW 0
+
+.globl	getLicenseName_internal
+.type	getLicenseName_internal, @function
+CALL $getLicenseName_internal_macro$
+
+.macro getLicenseName_internal_macro
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 34
+GETGLOB 19
+CALLREF {
+	CALL $_getLicenseVersionKeyByValue_internal_macro$
+}
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 0
+
+.globl	_getLicenseVersionKeyByValue_internal
+.type	_getLicenseVersionKeyByValue_internal, @function
+CALL $_getLicenseVersionKeyByValue_internal_macro$
+
+.macro _getLicenseVersionKeyByValue_internal_macro
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 38
+DUP
+LESSINT 7
+THROWIFNOT 100
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 39
+DUP
+PUSHCONT {
+	DROP
+	PUSHREF {
+		.blob x4342455f434330
+	}
+}
+IFNOTJMP
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 40
+DUP
+EQINT 1
+PUSHCONT {
+	DROP
+	PUSHREF {
+		.blob x4342455f454352
+	}
+}
+IFJMP
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 41
+DUP
+EQINT 2
+PUSHCONT {
+	DROP
+	PUSHREF {
+		.blob x4342455f4e454352
+	}
+}
+IFJMP
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 42
+DUP
+EQINT 3
+PUSHCONT {
+	DROP
+	PUSHREF {
+		.blob x4342455f4e4543525f4853
+	}
+}
+IFJMP
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 43
+EQINT 4
+PUSHCONT {
+	PUSHREF {
+		.blob x4342455f5052
+	}
+}
+PUSHCONT {
+	PUSHREF {
+		.blob x4342455f50525f4853
+	}
+}
+IFELSE
+.loc ../contracts/modules/TIP4_5/CantBeEvil.sol, 0
 
 .globl	TIP4_3Nft__beforeTransfer
 .type	TIP4_3Nft__beforeTransfer, @function
@@ -2009,7 +2219,12 @@ LDREF
 LDU 128
 LDU 128
 LDREF
+LDU 8
+OVER
+GTINT 5
+THROWIF 73
 ENDS
+SETGLOB 19
 SETGLOB 18
 SETGLOB 17
 SETGLOB 16
@@ -2054,6 +2269,8 @@ PUSHCONT {
 	DUP
 	PUSHREF {
 	}
+	PUSHINT 0
+	SETGLOB 19
 	SETGLOB 18
 	SETGLOB 17
 	SETGLOB 16
@@ -2076,6 +2293,7 @@ IFREFELSE {
 }
 
 .macro c7_to_c4
+GETGLOB 19
 GETGLOB 18
 GETGLOB 17
 GETGLOB 16
@@ -2093,19 +2311,20 @@ STU 64
 STONE
 STDICT
 STU 256
+ROLLREV 8
+NEWC
+STSLICE
 ROLLREV 7
 NEWC
 STSLICE
 ROLLREV 6
 NEWC
 STSLICE
-ROLLREV 5
-NEWC
-STSLICE
 STREF
 STU 128
 STU 128
 STREF
+STU 8
 STBREFR
 STBREFR
 STBREFR
@@ -2231,6 +2450,26 @@ CALLREF {
 }
 THROW 60
 
+.macro licenseVersion
+DROP
+ENDS
+CALLREF {
+	CALL $c4_to_c7$
+}
+GETGLOB 19
+OVER
+PUSHCONT {
+	PUSHSLICE xc0000000000000000000000000a0f75959
+	NEWC
+	STSLICE
+	STU 8
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+THROW 0
+
 .macro public_function_selector
 DUP
 PUSHINT 297752426
@@ -2262,7 +2501,7 @@ IFJMPREF {
 	}
 }
 DUP
-PUSHINT 839183401
+PUSHINT 553934018
 LEQ
 IFJMPREF {
 	DUP
@@ -2278,6 +2517,23 @@ IFJMPREF {
 		CALL $indexCodeHash$
 	}
 	DUP
+	PUSHINT 553081177
+	EQUAL
+	IFJMPREF {
+		CALL $licenseVersion$
+	}
+	DUP
+	PUSHINT 553934018
+	EQUAL
+	IFJMPREF {
+		CALL $getLicenseURI$
+	}
+}
+DUP
+PUSHINT 1525619880
+LEQ
+IFJMPREF {
+	DUP
 	PUSHINT 618124789
 	EQUAL
 	IFJMPREF {
@@ -2289,22 +2545,23 @@ IFJMPREF {
 	IFJMPREF {
 		CALL $supportsInterface$
 	}
-}
-DUP
-PUSHINT 1904151404
-LEQ
-IFJMPREF {
+	DUP
+	PUSHINT 1061950486
+	EQUAL
+	IFJMPREF {
+		CALL $getLicenseName$
+	}
 	DUP
 	PUSHINT 1525619880
 	EQUAL
 	IFJMPREF {
 		CALL $resolveIndex$
 	}
-	DUP
-	PUSHINT 1904151404
-	EQUAL
-	IFJMPREF {
-		CALL $changeOwner$
-	}
+}
+DUP
+PUSHINT 1904151404
+EQUAL
+IFJMPREF {
+	CALL $changeOwner$
 }
 

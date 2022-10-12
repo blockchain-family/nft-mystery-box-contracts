@@ -8,9 +8,10 @@ pragma AbiHeader pubkey;
 import './modules/TIP4_1/TIP4_1Nft.sol';
 import './modules/TIP4_3/TIP4_3Nft.sol';
 import './modules/TIP4_2/TIP4_2Nft.sol';
+import {LicenseVersion, CantBeEvil} from "./modules/TIP4_5/CantBeEvil.sol";
 
 
-contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft {
+contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft, CantBeEvil(LicenseVersion.CBE_ECR) {
 
     constructor(
         address owner,
@@ -30,6 +31,8 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft {
         indexDeployValue,
         indexDestroyValue,
         codeIndex
+    ) TIP6(
+
     ) public {
         tvm.accept();
     }
@@ -69,3 +72,4 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft {
     }
 
 }
+

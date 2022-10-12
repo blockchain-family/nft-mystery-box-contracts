@@ -6,6 +6,7 @@ pragma AbiHeader pubkey;
 
 import "./modules/TIP4_3/TIP4_3Collection.sol";
 import "./modules/TIP4_2/TIP4_2Collection.sol";
+import "./modules/TIP4_1/TIP4_1Collection.sol";
 import "./modules/access/MultiOwner.sol";
 import "./Nft.sol";
 import './libraries/Gas.sol';
@@ -41,37 +42,49 @@ contract Collection is TIP4_3Collection, TIP4_2Collection, MultiOwner, ICollecti
 		_remainOnNft = remainOnNft;
 	}
 
+	function _makeStrOf(Attributes[] attributes) private pure returns (string)  {
+		string strFromAttributes = "[";
+		uint256 attLength = attributes.length;
+		uint256 count = 1;
+		for (Attributes attr: attributes) {
+			strFromAttributes += "{ \"trait_type\": \"" + attr.trait_type +
+									"\" ,\"value\": \"" + attr.value + "\"}";
+
+			if (count < attLength){
+				strFromAttributes += ",";
+			}
+			count++;
+		}
+		return strFromAttributes + "]";
+	}
+
 	function mintNft(NftInfo _nftInfo, address _owner, uint32 _nftId) public override virtual anyOwner {
-		require(
-			msg.value > _remainOnNft + Gas.MINT_VALUE,
-			109
-		);
-		string json = "{\"type\": \"Broxus NFT\", \"id\":" + format("{}", _nftId) + 
-						",\"name\":" + _nftInfo.name + 
-						", \"description\":" + _nftInfo.description + 
-						",\"preview\": { \"source\":" + _nftInfo.previewUrl + 
-						", \"mimetype\": \"image/png\" }, \"files\": [ { \"source\":" + _nftInfo.ipfsUrl + 
-						", \"mimetype\": \"image/png\" }],\"params\": [\"p1\":" + _nftInfo.param1 + 
-						",\"p2\":" + _nftInfo.param2 + 
-						"],\"external_url\": \"https://everscale.network\"}";
+		require(msg.value > _remainOnNft + Gas.MINT_VALUE, 109);
+		string json = "{\"type\": \"Basic NFT\", \"id\":" + format("{}", _nftId) +
+						",\"name\": \"" + _nftInfo.name +
+						"\" , \"description\": \"" + _nftInfo.description +
+						"\" ,\"preview\": { \"source\": \"" + _nftInfo.previewUrl +
+						"\" , \"mimetype\": \"image/png\" }, \"files\": [ { \"source\": \"" + _nftInfo.ipfsUrl +
+						"\" , \"mimetype\" : \"image/png\" }], \"attributes\":" + _makeStrOf(_nftInfo.attributes) +
+						",\"external_url\": \"" + _nftInfo.externalUrl + "\"}";
+
 
 
 		tvm.rawReserve(Gas.INITIAL_BALANCE, 0);
-		_mintNft(_owner, json, 0, 128);
+		_mintNft(_owner, json, _nftId, 0, 128);
 	}
 
 	function totalMinted() external view responsible returns (uint256 count) {
 		return {value: 0, flag: 64, bounce: false} (_totalMinted);
 	}
 
-	function _mintNft(address owner, string json, uint128 value, uint16 flag) internal virtual {
+	function _mintNft(address owner, string json, uint32 _nftId, uint128 value, uint16 flag) internal virtual {
 
-		uint256 id = uint256(_totalMinted);
 		_totalMinted++;
 		_totalSupply++;
 
 		TvmCell codeNft = _buildNftCode(address(this));
-		TvmCell stateNft = _buildNftState(codeNft, id);
+		TvmCell stateNft = _buildNftState(codeNft, _nftId);
 		address nftAddr = new Nft{stateInit: stateNft, value: value, flag: flag}(
 			owner,
 			msg.sender,
@@ -82,7 +95,7 @@ contract Collection is TIP4_3Collection, TIP4_2Collection, MultiOwner, ICollecti
 			_codeIndex
 		);
 
-		emit NftCreated(id, nftAddr, owner, msg.sender, msg.sender);
+		emit NftCreated(_nftId, nftAddr, owner, msg.sender, msg.sender);
 	}
 
 	function setRemainOnNft(uint128 remainOnNft) external virtual onlyOwner {
